@@ -150,18 +150,47 @@ img[data-src]:not([src]){visibility:hidden}
     .dial-wheel::before,.dial-wheel::after{height:var(--wheel-step)}
     .dial-head{padding-bottom:8px}.dial-footer{margin-top:8px}
 }
+.language-picker{display:inline-flex;align-items:center;gap:5px;color:#495b50;flex:none}
+.language-picker select{font:inherit;font-size:12px;color:inherit;border:0;background:transparent;min-height:34px;cursor:pointer;max-width:145px}
+.language-picker select:focus-visible{outline:2px solid #54836b;outline-offset:2px;border-radius:4px}
+.nav-right{justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:620px){nav{gap:8px;padding-inline:16px}.nav-right #connection{display:none}.language-picker select{max-width:128px}}
+@media(pointer:coarse){.language-picker select{min-height:44px}}
+.calendar-editor{margin-top:14px}
+.calendar-editor summary,.quiet-panel .calendar-editor summary{display:inline-flex;gap:7px;padding:4px 0;color:#365d47;font-weight:600;min-height:28px;font-size:12px;cursor:pointer}
+.calendar-editor summary::after,.quiet-panel[open] .calendar-editor summary::after{margin-left:2px;transform:rotate(45deg)}
+.quiet-panel .calendar-editor[open] summary::after{transform:rotate(225deg)}
+.calendar-content{width:min(100%,340px);margin-top:8px}
+.calendar-content label{display:grid;gap:5px}
+#calendar-region{max-width:100%;min-height:34px;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding-inline:8px}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0 5px}
+.month-nav button,.calendar-grid button{font:inherit;cursor:pointer;color:inherit;border:0;background:transparent;border-radius:7px}
+.month-nav button{width:34px;height:32px;font-size:18px}.month-nav button:disabled{opacity:.35}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center}
+.calendar-grid .weekday{color:#69746d;font-size:11px;line-height:24px}
+.calendar-grid button{position:relative;min-height:33px;font-variant-numeric:tabular-nums}
+.calendar-grid button[data-rest=true],.rest-key{background:#e9f2eb;color:#2e6142}
+.calendar-grid button.custom-day::after,.custom-key::before{content:'';display:block;width:4px;height:4px;border-radius:50%;background:#8665b6}
+.calendar-grid button.custom-day::after{position:absolute;bottom:3px;left:calc(50% - 2px)}
+.calendar-grid button[aria-current=date]{box-shadow:inset 0 0 0 1px #739b81;font-weight:650}
+.calendar-grid button:disabled{opacity:.45;cursor:default}
+.calendar-legend{display:flex;align-items:center;gap:10px;margin:10px 0 4px;color:#5e6b62;font-size:11px}
+.rest-key{padding:2px 5px;border-radius:4px}.custom-key{display:inline-flex;align-items:center;gap:5px}
+#month-warning,.calendar-tip{margin:6px 0 0;color:#637268;font-size:12px;line-height:1.5}
+@media(pointer:coarse){.calendar-grid button,.month-nav button{min-height:42px}}
 </style>
 <!--monitor-control-->
+<!--local-language-->
 </head>
 <body>
-<header><nav><a class="brand" href="./" aria-label="鹈鹕巡检 首页"><img src="./pelican-icon.png" alt="">鹈鹕巡检<small>ACCOUNT MONITOR</small></a><div class="nav-right"><span>喜鹊 · 账号巡检</span><span class="pill" id="connection"><i class="dot pulse"></i>正在连接</span></div></nav></header>
-<main>
-<section class="hero"><div><div class="eyebrow">CODEX / ACCOUNT MONITOR</div><h1>鹈鹕<span>巡检</span></h1><p>按计划用同一句提示词逐号生成鹈鹕骑行动画。选择账号，查看最近输出和运行记录。</p></div><div class="clock"><div class="eyebrow">北京时间</div><div class="time" id="clock">--:--:--</div><div class="date" id="today">正在同步时间</div></div></section>
+<header><nav><a class="brand" href="./" aria-label="鹈鹕巡检 首页"><img src="./pelican-icon.png" alt="">鹈鹕巡检<small>账号监测</small></a><div class="nav-right"><span>喜鹊 · 账号巡检</span><span class="pill" id="connection"><i class="dot pulse"></i>正在连接</span><label class="language-picker"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><select id="language" aria-label="语言"><option value="system">跟随系统</option><option lang="zh-CN" value="zh-CN">简体中文</option><option lang="zh-TW" value="zh-TW">繁體中文</option><option lang="en" value="en">English</option><option lang="ja" value="ja">日本語</option><option lang="de" value="de">Deutsch</option></select></label></div></nav></header>
+<main><div id="language-feedback" role="status"></div>
+<section class="hero"><div><div class="eyebrow">CODEX</div><h1>鹈鹕巡检</h1><p>按计划用同一句提示词逐号生成鹈鹕骑行动画。选择账号，查看最近输出和运行记录。</p></div><div class="clock"><div class="eyebrow" data-zone>北京时间</div><div class="time" id="clock">--:--:--</div><div class="date" id="today">正在同步时间</div></div></section>
 <section class="accounts-panel" aria-labelledby="accounts-heading">
 <div class="account-heading"><h2 id="accounts-heading">Codex 官方账号</h2><span id="inventory"></span></div>
 <div class="accounts" id="accounts"></div><p class="monitor-feedback" id="monitor-feedback" role="status"></p>
 <details class="quiet-panel" open>
-<summary><strong>免打扰与休息日</strong><span class="quiet-zone">北京时间</span><span id="quiet-summary">读取中</span></summary>
+<summary><strong>免打扰与休息日</strong><span class="quiet-zone" data-zone>北京时间</span><span id="quiet-summary">读取中</span></summary>
 <div id="quiet-form" role="group" aria-label="巡检时间设置" hidden><fieldset id="quiet-fields">
 <div class="settings-grid">
 <section class="settings-section" aria-labelledby="quiet-heading">
@@ -176,32 +205,39 @@ img[data-src]:not([src]){visibility:hidden}
 </section>
 <section class="settings-section" aria-labelledby="rest-heading">
 <div class="section-top"><i class="section-icon calendar-icon" aria-hidden="true"></i><h3 id="rest-heading">休息日抽样</h3>
-<label class="quiet-power"><input id="rest-enabled" type="checkbox" role="switch" aria-label="按中国工作日历抽样"><span class="switch-track" aria-hidden="true"></span></label></div>
-<p class="settings-description" id="calendar-caption">按中国工作日历执行，调休补班日照常检测。</p>
+<label class="quiet-power"><input id="rest-enabled" type="checkbox" role="switch" aria-label="按地区日历抽样"><span class="switch-track" aria-hidden="true"></span></label></div>
+<p class="settings-description" id="calendar-caption"></p>
 <fieldset id="rest-settings" aria-labelledby="rest-heading"><div class="rest-controls">
 <div><label class="field-label" for="rest-count">每账号每天</label><div class="count-stepper"><button id="rest-less" type="button" aria-label="减少抽样次数">−</button><select id="rest-count" aria-label="休息日每账号检测次数"></select><button id="rest-more" type="button" aria-label="增加抽样次数">+</button></div></div>
 <div><span class="field-label" id="mode-label">时间分布</span><div class="mode-switch" role="radiogroup" aria-labelledby="mode-label">
 <label class="mode-choice"><input id="mode-even" type="radio" name="rest-mode" value="even" checked><span>均匀分布</span></label><label class="mode-choice"><input id="mode-custom" type="radio" name="rest-mode" value="custom"><span>自选时刻</span></label></div></div></div>
 <div id="rest-times" class="sample-times" aria-label="休息日抽样时刻" hidden></div><p id="rest-hint" class="settings-hint"></p></fieldset>
+<details id="calendar-editor" class="calendar-editor"><summary>休息日日历</summary>
+<div class="calendar-content"><label><span class="field-label">日历地区</span><select id="calendar-region"></select></label>
+<div class="month-nav"><button type="button" id="month-prev" aria-label="上一月">‹</button><strong id="month-title" aria-live="polite"></strong><button type="button" id="month-next" aria-label="下一月">›</button></div>
+<div class="calendar-grid" id="calendar-grid" role="group" aria-labelledby="month-title"></div><button type="button" id="calendar-retry" hidden>加载日历失败，点此重试</button>
+<div class="calendar-legend"><span class="rest-key">休息日</span><span class="custom-key">自定义</span></div>
+<p class="calendar-tip">点选日期切换工作日和休息日，再点一次恢复地区日历。</p><p id="month-warning" hidden>未收录该地区或年份的节假日，按周末安排。</p></div></details>
 </section></div>
 <div class="settings-footer"><span class="footer-scope">应用于全部账号</span><p id="quiet-feedback" role="status"></p><button type="button" id="quiet-save">保存设置</button></div>
 </fieldset></div><div id="quiet-readonly" class="quiet-readonly" hidden></div><p id="sample-preview" class="sample-preview"></p></details></section>
 <div class="error-bar hidden" id="notice" role="status"></div>
 <section class="stats" aria-label="生成统计"><div class="stat"><div class="stat-label">已保存输出 <span class="tiny-icon">▧</span></div><div class="stat-value" id="total">—</div><div class="stat-foot">当前账号累计</div></div><div class="stat"><div class="stat-label">保存成功率 <span class="tiny-icon">↗</span></div><div class="stat-value" id="rate">—</div><div class="stat-foot" id="rate-note">以已结束的实际任务计算</div></div><div class="stat"><div class="stat-label">距离下次生成 <span class="tiny-icon">◷</span></div><div class="stat-value purple" id="countdown">--:--</div><div class="stat-foot" id="next-time">正在读取喜鹊调度</div></div><div class="stat"><div class="stat-label">最近一次生成 <span class="tiny-icon">✦</span></div><div class="stat-value" id="last-time">—</div><div class="stat-foot" id="last-note">等待第一段骑行</div></div></section>
-<div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote">悬停色块查看小浮窗，点击即可放大。时间均为北京时间。<br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
-<section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">FIXED PROMPT</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
-<section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">INDEPENDENT RUNS</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
+<div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote"><span id="timeline-help"></span><br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
+<section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">固定提示词</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
+<section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
 <details class="prompt-details"><summary>查看检测使用的原始提示词</summary><p id="prompt"></p></details>
 <footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
 </main>
 <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
 <dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div><div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
 <dialog id="time-dial" aria-labelledby="dial-title">
-<div class="dial-head"><h3 id="dial-title">开始时间</h3><span class="dial-zone">北京时间</span></div>
+<div class="dial-head"><h3 id="dial-title">开始时间</h3><span class="dial-zone" data-zone>北京时间</span></div>
 <div class="dial-face"><div class="dial-wheel" id="dial-hours" role="spinbutton" aria-label="小时" tabindex="0"></div><span class="dial-colon" aria-hidden="true">:</span><div class="dial-wheel" id="dial-minutes" role="spinbutton" aria-label="分钟" tabindex="0"></div></div>
 <div class="dial-footer"><button type="button" id="dial-cancel">取消</button><button type="button" id="dial-done">完成</button></div>
 </dialog>
 <!--snapshot-->
+<!--language-script-->
 <script>
 'use strict';
 const $=id=>document.getElementById(id), HOUR=3600000;
@@ -210,45 +246,57 @@ let savingMonitoring=false, monitoringVersion=0;
 let quietEdited=false;
 let dataset=null, selected=location.hash.slice(1), state=null,range=24,limit=12,filter='all',fingerprint='',timerOffset=0,featureId=null,online=false,lastUpdated=0,slots=[];
 const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=(t,options)=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',hour12:false,...options}).format(new Date(t));
+const displayZone=()=>dataset?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+const zoneName=()=>displayZone()==='Asia/Shanghai'?t('北京时间'):displayZone();
+function renderZone(){
+    for(const el of document.querySelectorAll('[data-zone]')) el.textContent=zoneName();
+    $('timeline-help').textContent=t('悬停色块预览，点击查看详情。时区：{zone}。',{zone:zoneName()});
+}
+function systemMessage(text){
+    if(!text)return '';
+    if(text.startsWith('喜鹊网关 HTTP '))return t('喜鹊网关 HTTP {detail}',{detail:text.slice('喜鹊网关 HTTP '.length)});
+    const incomplete=/^模型未完成输出（(.+)）$/.exec(text);
+    return incomplete?t('模型未完成输出（{status}）',{status:incomplete[1]}):t(text);
+}
+const fmt=(t,options)=>new Intl.DateTimeFormat(locale,{timeZone:displayZone(),hourCycle:'h23',...options}).format(new Date(t));
 const hhmm=t=>fmt(t,{hour:'2-digit',minute:'2-digit'});
 const stamp=t=>fmt(t,{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-const label=s=>({success:'已保存',running:'生成中',failed:'生成失败',interrupted:'运行中断'}[s]||'未运行');
-const triggerLabel=r=>({pause:'关闭时检测',resume:'开启时检测',scheduled:'定时检测','rest-sample':'休息日抽样','manual-retry':'手动重试'}[r?.trigger]||'');
-const duration=r=>{if(!r?.finishedAt)return '—';const sec=Math.max(0,Math.round((Date.parse(r.finishedAt)-Date.parse(r.startedAt))/1000));return sec<60?sec+' 秒':Math.floor(sec/60)+' 分 '+sec%60+' 秒'};
+const label=s=>({success:t('已保存'),running:t('生成中'),failed:t('生成失败'),interrupted:t('运行中断')}[s]||t('未运行'));
+const triggerLabel=r=>({pause:t('关闭时检测'),resume:t('开启时检测'),scheduled:t('定时检测'),'rest-sample':t('休息日抽样'),'manual-retry':t('手动重试')}[r?.trigger]||'');
+const duration=r=>{if(!r?.finishedAt)return '—';const sec=Math.max(0,Math.round((Date.parse(r.finishedAt)-Date.parse(r.startedAt))/1000));return sec<60?t('{n} 秒',{n:sec}):t('{n} 分 {s} 秒',{n:Math.floor(sec/60),s:sec%60})};
 function currentTime(){return Date.now()+timerOffset}
 function renderClock(){
     const now=currentTime();
     $('clock').textContent=fmt(now,{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     $('today').textContent=fmt(now,{year:'numeric',month:'2-digit',day:'2-digit',weekday:'long'});
     const due=state?.account?.nextDispatchAt;
-    let value='—', caption='等待调度时间';
+    let value='—', caption=t('等待调度时间');
     if(selected==='history' || state?.account?.enabled===false){
-        caption='此分类不参与调度';
+        caption=t('此分类不参与调度');
     }else if(state?.scheduleStatus==='offline'){
-        value='离线'; caption='未收到喜鹊插件心跳';
+        value=t('离线'); caption=t('未收到喜鹊插件心跳');
     }else if(state?.account?.monitoringPaused){
-        value='已暂停'; caption='已暂停此账号的定时检测';
+        value=t('已暂停'); caption=t('已暂停此账号的定时检测');
     }else if(state?.quietUntil>now){
-        value='免打扰'; caption='北京时间 '+hhmm(state.quietUntil)+' 结束';
+        value=t('免打扰'); caption=t('{zone} {time} 结束',{zone:zoneName(),time:hhmm(state.quietUntil)});
     }else if(state?.account?.pendingSwitchChecks && !due){
-        caption='开启时检测启动后安排下一次';
+        caption=t('开启时检测启动后安排下一次');
     }else if(state?.account?.enabled && state.quietHours?.enabled && !due){
-        caption='免打扰时段外没有可用的随机分钟';
+        caption=t('免打扰时段外没有可用的随机分钟');
     }else if(state?.scheduleStatus==='active' && Number.isFinite(due)){
         const seconds=Math.ceil((due-now)/1000);
-        value=seconds>=3600 ? Math.floor(seconds/3600)+'小时'+Math.floor(seconds%3600/60)+'分'
-            : seconds>0 ? [Math.floor(seconds/60),seconds%60].map(n=>String(n).padStart(2,'0')).join(':') : '待触发';
-        caption='计划 '+(fmt(due,{day:'numeric',month:'numeric'})===fmt(now,{day:'numeric',month:'numeric'})?hhmm(due):stamp(due))+' 检测';
+        value=seconds>=3600 ? t('{h}小时{m}分',{h:Math.floor(seconds/3600),m:Math.floor(seconds%3600/60)})
+            : seconds>0 ? [Math.floor(seconds/60),seconds%60].map(n=>String(n).padStart(2,'0')).join(':') : t('待触发');
+        caption=t('计划 {time} 检测',{time:fmt(due,{day:'numeric',month:'numeric'})===fmt(now,{day:'numeric',month:'numeric'})?hhmm(due):stamp(due)});
     }
     $('countdown').textContent=value;
     $('next-time').textContent=caption;
-    if(lastUpdated&&online)$('updated').textContent=Math.max(0,Math.floor((Date.now()-lastUpdated)/1000))+' 秒前更新';
+    if(lastUpdated&&online)$('updated').textContent=t('{n} 秒前更新',{n:Math.max(0,Math.floor((Date.now()-lastUpdated)/1000))});
 }
-function renderTimeline(){if(!state)return;$('timeline-label').textContent=range===24?'最近 24 小时':'最近 7 天';$('range-start').textContent=range===24?'24 小时前':'7 天前';$('timeline').classList.toggle('week',range>24);const current=Math.floor(currentTime()/HOUR)*HOUR;slots=[];let html='';for(let i=0;i<range;i++){const start=current-(range-1-i)*HOUR;const runs=state.runs.filter(r=>Date.parse(r.startedAt)>=start&&Date.parse(r.startedAt)<start+HOUR);const run=runs.find(r=>r.status==='running')||runs[0];slots.push({start,run,runs});const latest=run&&run.id===state.runs[0]?.id;html+='<button type="button" class="segment '+(run?.status||'')+(latest?' latest':'')+(range>24?' week-item':'')+'" data-slot="'+i+'" aria-label="'+escapeHTML(stamp(start)+' '+label(run?.status))+'"></button>'}$('timeline').innerHTML=html;}
+function renderTimeline(){if(!state)return;$('timeline-label').textContent=range===24?t('最近 24 小时'):t('最近 7 天');$('range-start').textContent=range===24?t('24 小时前'):t('7 天前');$('timeline').classList.toggle('week',range>24);const current=Math.floor(currentTime()/HOUR)*HOUR;slots=[];let html='';for(let i=0;i<range;i++){const start=current-(range-1-i)*HOUR;const runs=state.runs.filter(r=>Date.parse(r.startedAt)>=start&&Date.parse(r.startedAt)<start+HOUR);const run=runs.find(r=>r.status==='running')||runs[0];slots.push({start,run,runs});const latest=run&&run.id===state.runs[0]?.id;html+='<button type="button" class="segment '+(run?.status||'')+(latest?' latest':'')+(range>24?' week-item':'')+'" data-slot="'+i+'" aria-label="'+escapeHTML(stamp(start)+' '+label(run?.status))+'"></button>'}$('timeline').innerHTML=html;}
 function thumbnail(run){
     const image=escapeHTML(run.thumbnail || run.svg);
-    const title=escapeHTML(run.title || '动画预览');
+    const title=escapeHTML(run.title || t('动画预览'));
     if(run.thumbnailVideo) return '<video muted playsinline loop preload="none" disablepictureinpicture aria-label="'+title+'" data-src="'+escapeHTML(run.thumbnailVideo)+'" data-image="'+image+'"></video>';
     return '<img data-src="'+image+'" alt="'+title+'">';
 }
@@ -298,13 +346,13 @@ for(const id of ['featured','gallery','tooltip']) previewChanges.observe($(id),{
 function syncVisiblePreviews(){visiblePreviews.forEach(syncPreview);}
 document.addEventListener('visibilitychange',syncVisiblePreviews);
 new MutationObserver(syncVisiblePreviews).observe($('modal'),{attributes:true,attributeFilter:['open']});
-function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=String(items.length).padStart(2,'0')+' RECORDS';$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(r.stage||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(r.title)+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>等待下一次独立运行</strong><small>按此账号的计划检测</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>这个分类还没有记录</strong><small>新结果会自动显示在这里</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
-function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>份</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?'已结束 '+finished.length+' 次 · 保存 '+good.length+' 次':'以已结束的实际任务计算';$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+stamp(latest.startedAt).split(' ')[0]:'等待第一段骑行';$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),running.stage].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?'免打扰中':state.account?.pendingSwitchChecks?'开关检测待运行':state.account?.monitoringPaused?'检测已暂停':(latest?.status==='success'?'本次已保存，等待下次生成':latest?label(latest.status):'等待此账号输出');$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?'历史归档':!state.account?.enabled?'供应商账号未启用':state.account.monitoringPaused?'检测已暂停':state.scheduleStatus==='active'?(state.restSchedule?.enabled?state.calendarDay.label+(state.calendarDay.rest?' · 每账号 '+state.restSchedule.count+' 次':' · 约每小时一次'):'喜鹊插件 · 每小时随机分钟'):'喜鹊插件离线';$('prompt').textContent=state.prompt;document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">⤢ 点击放大</span>';$('featured-title').textContent=featured.title;$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||'历史输出')+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">等待此账号输出</div>';$('featured-title').textContent=running?'正在独立生成':'等待输出';$('featured-meta').textContent=state.model||'FIXED PROMPT'}renderTimeline();renderGallery();renderClock();}
+function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=t('{n} 条记录',{n:items.length});$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(systemMessage(r.stage)||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(r.title)+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>'+t('等待下一次独立运行')+'</strong><small>'+t('按此账号的计划检测')+'</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>'+t('这个分类还没有记录')+'</strong><small>'+t('新结果会自动显示在这里')+'</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
+function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>'+t('份')+'</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?t('已结束 {total} 次 · 保存 {saved} 次',{total:finished.length,saved:good.length}):t('以已结束的实际任务计算');$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+fmt(latest.startedAt,{month:'2-digit',day:'2-digit'}):t('等待第一段骑行');$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),systemMessage(running.stage)].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?t('免打扰中'):state.account?.pendingSwitchChecks?t('开关检测待运行'):state.account?.monitoringPaused?t('检测已暂停'):(latest?.status==='success'?t('本次已保存，等待下次生成'):latest?label(latest.status):t('等待此账号输出'));$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?t('历史归档'):!state.account?.enabled?t('供应商账号未启用'):state.account.monitoringPaused?t('检测已暂停'):state.scheduleStatus==='active'?(state.restSchedule?.enabled?t(state.calendarDay.label)+' · '+(state.calendarDay.rest?t('每账号 {n} 次',{n:state.restSchedule.count}):t('约每小时一次')):t('喜鹊插件 · 每小时随机分钟')):t('喜鹊插件离线');$('prompt').textContent=state.prompt;document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">'+t('⤢ 点击放大')+'</span>';$('featured-title').textContent=featured.title;$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||t('历史输出'))+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">'+t('等待此账号输出')+'</div>';$('featured-title').textContent=running?t('正在独立生成'):t('等待输出');$('featured-meta').textContent=state.model||t('固定提示词')}renderTimeline();renderGallery();renderClock();}
 function renderNotice(){
     let note='';
-    if(!online) note='暂时连不上监测网页，正在重连。';
-    else if(state.monitorError) note='插件调度异常 · '+state.monitorError;
-    else if(state.scheduleStatus==='offline') note='未收到喜鹊插件心跳。请检查喜鹊及「鹈鹕巡检」插件的运行状态。';
+    if(!online) note=t('暂时连不上监测网页，正在重连。');
+    else if(state.monitorError) note=t('插件调度异常 · {error}',{error:systemMessage(state.monitorError)});
+    else if(state.scheduleStatus==='offline') note=t('未收到喜鹊插件心跳。请检查喜鹊及「鹈鹕巡检」插件的运行状态。');
     $('notice').textContent=note;
     $('notice').classList.toggle('hidden',!note);
 }
@@ -315,17 +363,17 @@ function selectAccount(){
     }
     const account=accounts.find(a=>a.id===selected);
     const plan=account?.restSampleMinutes;
-    $('sample-preview').textContent=plan?.length?account.name+' · '+fmt(dataset.restPreviewDay,{month:'numeric',day:'numeric',weekday:'short'})+' 抽样计划　'+plan.map(timeInput).join('、'):'';
+    $('sample-preview').textContent=plan?.length?account.name+' · '+fmt(dataset.restPreviewDay,{month:'numeric',day:'numeric',weekday:'short'})+' · '+t('抽样计划')+' · '+plan.map(timeInput).join(' / '):'';
     if(state?.account?.monitoringPaused!==account?.monitoringPaused)$('monitor-feedback').textContent='';
     state={...dataset,account,runs:selected==='history'?older.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)):dataset.runs.filter(r=>r.accountId===selected),legacyRuns:[]};
-    $('inventory').textContent=accounts.filter(a=>a.enabled && a.present && !a.monitoringPaused).length+' 个账号参与检测';
+    $('inventory').textContent=t('{n} 个账号参与检测',{n:accounts.filter(a=>a.enabled && a.present && !a.monitoringPaused).length});
     const active=document.activeElement;
     const cards=accounts.map(a=>{
         const runs=dataset.runs.filter(r=>r.accountId===a.id);
-        const status=!a.present?'已移除':!a.enabled?'已停用':dataset.quietUntil && !a.monitoringPaused?'免打扰中':a.pendingSwitchChecks?'开关检测待运行':a.monitoringPaused?'检测已暂停':runs.length?label(runs[0].status):'待首次检测';
-        return accountCard(a.id,a.name,status+' · '+runs.filter(r=>r.status==='success').length+' 份',a);
+        const status=!a.present?t('已移除'):!a.enabled?t('已停用'):dataset.quietUntil && !a.monitoringPaused?t('免打扰中'):a.pendingSwitchChecks?t('开关检测待运行'):a.monitoringPaused?t('检测已暂停'):runs.length?label(runs[0].status):t('待首次检测');
+        return accountCard(a.id,a.name,status+' · '+t('{n} 份',{n:runs.filter(r=>r.status==='success').length}),a);
     });
-    if(older.length)cards.push(accountCard('history','早期记录',older.length+' 次 · 未归属'));
+    if(older.length)cards.push(accountCard('history',t('早期记录'),t('{n} 次 · 未归属',{n:older.length})));
     $('accounts').innerHTML=cards.join('');
     syncMonitoringSwitches();
     const focusedId=active?.dataset.monitor || active?.dataset.account;
@@ -340,8 +388,8 @@ function accountCard(id,name,detail,account){
     const selection='<button class="account-select" type="button" data-account="'+escapeHTML(id)+'" aria-pressed="'+selectedCard+'"><strong>'+escapeHTML(name)+'</strong><small>'+escapeHTML(detail)+'</small></button>';
     let control='';
     if(managementKey && account?.present){
-        const hint=(account.monitoringPaused?'恢复':'暂停')+name+'的定时检测';
-        control='<button type="button" role="switch" class="monitor-switch" data-monitor="'+escapeHTML(id)+'" aria-checked="'+!account.monitoringPaused+'" aria-label="'+escapeHTML(name+'的定时检测')+'" title="'+escapeHTML(hint)+'"><span class="switch-track" aria-hidden="true"></span><span aria-hidden="true">定时检测</span></button>';
+        const hint=t(account.monitoringPaused?'恢复{name}的定时检测':'暂停{name}的定时检测',{name});
+        control='<button type="button" role="switch" class="monitor-switch" data-monitor="'+escapeHTML(id)+'" aria-checked="'+!account.monitoringPaused+'" aria-label="'+escapeHTML(t('{name}的定时检测',{name}))+'" title="'+escapeHTML(hint)+'"><span class="switch-track" aria-hidden="true"></span><span aria-hidden="true">'+t('定时检测')+'</span></button>';
     }
     return '<div class="account'+(selectedCard?' selected':'')+(id==='history'?' history':'')+'">'+selection+control+'</div>';
 }
@@ -374,7 +422,7 @@ function makeWheel(el,count,unit){
         if(visibleIndex!==index){
             visibleIndex=index;
             el.setAttribute('aria-valuenow',String(index%count));
-            el.setAttribute('aria-valuetext',rows[index].textContent+unit);
+            el.setAttribute('aria-valuetext',t(unit,{n:rows[index].textContent}));
         }
         for(let i=Math.max(0,index-3);i<=Math.min(rows.length-1,index+3);i++){
             const delta=i-pos,distance=Math.min(3,Math.abs(delta));
@@ -485,7 +533,7 @@ function makeWheel(el,count,unit){
         stopWheel
     };
 }
-const dialHours=makeWheel($('dial-hours'),24,'时'),dialMinutes=makeWheel($('dial-minutes'),60,'分');
+const dialHours=makeWheel($('dial-hours'),24,'{n} 时'),dialMinutes=makeWheel($('dial-minutes'),60,'{n} 分钟');
 function placeDial(){
     if(!dial.open || !timeButton)return;
     const rect=timeButton.getBoundingClientRect(),width=dial.offsetWidth,height=dial.offsetHeight;
@@ -498,20 +546,20 @@ function bindTimePicker(button,title){
     button.addEventListener('click',()=>{
         const [h,m]=button.textContent.split(':').map(Number);
         if(!Number.isInteger(h) || !Number.isInteger(m))return;
-        timeButton=button;button.setAttribute('aria-expanded','true');$('dial-title').textContent=title;
+        timeButton=button;button.setAttribute('aria-expanded','true');$('dial-title').textContent=title();
         dial.showModal();placeDial();dialHours.set(h);dialMinutes.set(m);
         $('dial-hours').focus({preventScroll:true});
     });
 }
-bindTimePicker($('quiet-start'),'开始时间');bindTimePicker($('quiet-end'),'结束时间');
+bindTimePicker($('quiet-start'),()=>t('开始时间'));bindTimePicker($('quiet-end'),()=>t('结束时间'));
 const sampleButtons=[];
 for(let i=1;i<=8;i++){
-    $('rest-count').add(new Option(i+' 次',String(i)));
+    $('rest-count').add(new Option(t('{n} 次',{n:i}),String(i)));
     const b=document.createElement('button');
     b.className='time-pill';b.type='button';b.setAttribute('aria-haspopup','dialog');
     b.setAttribute('aria-controls','time-dial');b.setAttribute('aria-expanded','false');
-    b.id='sample-time-'+i;b.setAttribute('aria-label','第 '+i+' 次抽样');
-    $('rest-times').append(b);sampleButtons.push(b);bindTimePicker(b,'第 '+i+' 次抽样');
+    b.id='sample-time-'+i;b.setAttribute('aria-label',t('第 {n} 次抽样',{n:i}));
+    $('rest-times').append(b);sampleButtons.push(b);bindTimePicker(b,()=>t('第 {n} 次抽样',{n:i}));
 }
 function minutesOf(text){const [h,m]=text.split(':').map(Number);return h*60+m;}
 function availableMinutes(){
@@ -523,9 +571,9 @@ function renderQuietBand(){
     const start=minutesOf($('quiet-start').textContent),end=minutesOf($('quiet-end').textContent);
     const active=$('quiet-enabled').checked;
     const length=(end-start+1440)%1440, hours=Math.floor(length/60), minutes=length%60;
-    $('end-label').textContent=end<start?'次日结束':'结束';
+    $('end-label').textContent=end<start?t('次日结束'):t('结束');
     $('day-strip').dataset.off=String(!active);
-    $('quiet-duration').textContent=(active?'免打扰':'启用后免打扰')+' '+(hours?hours+' 小时':'')+(minutes?' '+minutes+' 分钟':'')+(length?'':'0 分钟');
+    $('quiet-duration').textContent=(active?t('免打扰'):t('启用后免打扰'))+' '+[hours?t('{n} 小时',{n:hours}):'',minutes||!length?t('{n} 分钟',{n:minutes}):''].filter(Boolean).join(' ');
     const spans=$('day-strip').querySelectorAll('.day-track span');
     const ranges=end<start?[[0,end],[start,1440]]:[[start,end],[0,0]];
     ranges.forEach(([a,b],i)=>{spans[i].style.left=a/14.4+'%';spans[i].style.width=(b-a)/14.4+'%';});
@@ -539,7 +587,7 @@ for(const [id,delta] of [['rest-less',-1],['rest-more',1]]){
 function updateRestForm(){
     const count=Number($('rest-count').value),custom=$('mode-custom').checked;
     $('rest-settings').disabled=!$('rest-enabled').checked;$('rest-times').hidden=!custom;
-    $('rest-hint').textContent=!$('rest-enabled').checked?'当前沿用工作日频率。':custom?'':'可检测时间等分为 '+count+' 段，每段抽样一次。';
+    $('rest-hint').textContent=!$('rest-enabled').checked?t('当前沿用工作日频率。'):custom?'':t('可检测时间等分为 {n} 段，每段抽样一次。',{n:count});
     $('rest-less').disabled=count<=1;$('rest-more').disabled=count>=8;
     renderQuietBand();
     const allowed=availableMinutes();
@@ -570,13 +618,13 @@ let restFormKey='';
 function renderQuietSettings(data){
     const q=data.quietHours;
     if(!q)return;
-    $('quiet-summary').textContent=q.enabled?(data.quietUntil?'生效中 · ':'')+timeInput(q.start)+' – '+(q.end<q.start?'次日 ':'')+timeInput(q.end)+' · 北京时间':'未启用';
+    $('quiet-summary').textContent=q.enabled?(data.quietUntil?t('生效中')+' · ':'')+timeInput(q.start)+' – '+(q.end<q.start?t('次日')+' ':'')+timeInput(q.end)+' · '+zoneName():t('未启用');
     const r=data.restSchedule;
-    if(r?.enabled)$('quiet-summary').textContent+=' · '+data.calendarDay.label+' · 休息日 '+r.count+' 次'+(data.calendarDay.official?'':'（本年按周末推算）');
+    if(r?.enabled)$('quiet-summary').textContent+=' · '+t(data.calendarDay.label)+' · '+t('休息日 {n} 次',{n:r.count})+(data.calendarDay.official?'':' · '+t('本年按周末推算'));
     $('quiet-form').hidden=!managementKey;
     $('quiet-readonly').hidden=Boolean(managementKey);
-    if(!managementKey)$('quiet-readonly').textContent=$('quiet-summary').textContent+'。可在喜鹊插件页或本机网页修改。';
-    $('calendar-caption').textContent=r?.enabled && !data.calendarDay.official?'本年日历尚未收录，暂按周六、周日抽样。':'按中国工作日历执行，调休补班日照常检测。';
+    if(!managementKey)$('quiet-readonly').textContent=$('quiet-summary').textContent+' · '+t('可在喜鹊插件页或本机网页修改。');
+    calendarSettings(data);
     if(!quietEdited){
         $('quiet-enabled').checked=q.enabled;
         $('quiet-start').textContent=timeInput(q.start);
@@ -590,30 +638,30 @@ function renderQuietSettings(data){
         }
     }
 }
-function markQuietEdited(){quietEdited=true;$('quiet-form').dataset.edited='true';$('quiet-feedback').textContent='有未保存的更改';}
+function markQuietEdited(){quietEdited=true;$('quiet-form').dataset.edited='true';$('quiet-feedback').textContent=t('有未保存的更改');}
 $('quiet-form').addEventListener('change',()=>{updateRestForm();markQuietEdited();});
 $('quiet-save').addEventListener('click',async()=>{
     if(!online || !managementKey || savingMonitoring)return;
     const start=$('quiet-start').textContent, end=$('quiet-end').textContent;
-    if(start===end){$('quiet-feedback').textContent='请选择不同的开始和结束时间。';return;}
+    if(start===end){$('quiet-feedback').textContent=t('请选择不同的开始和结束时间。');return;}
     const rest={enabled:$('rest-enabled').checked,count:Number($('rest-count').value),distribution:$('mode-custom').checked?'custom':'even',times:[]};
     const allowed=availableMinutes();
-    if(rest.enabled && allowed.length<rest.count){$('quiet-feedback').textContent='可检测的分钟数少于抽样次数，请调整免打扰或次数。';return;}
+    if(rest.enabled && allowed.length<rest.count){$('quiet-feedback').textContent=t('可检测的分钟数少于抽样次数，请调整免打扰或次数。');return;}
     if(rest.distribution==='custom'){
         rest.times=sampleButtons.slice(0,rest.count).map(b=>minutesOf(b.textContent));
-        if(new Set(rest.times).size!==rest.count){$('quiet-feedback').textContent='请为每次抽样选择不同的时刻。';return;}
-        if(rest.enabled && rest.times.some(m=>!allowed.includes(m))){$('quiet-feedback').textContent='有抽样时刻落在免打扰内，请调整时间。';return;}
+        if(new Set(rest.times).size!==rest.count){$('quiet-feedback').textContent=t('请为每次抽样选择不同的时刻。');return;}
+        if(rest.enabled && rest.times.some(m=>!allowed.includes(m))){$('quiet-feedback').textContent=t('有抽样时刻落在免打扰内，请调整时间。');return;}
         rest.times.sort((a,b)=>a-b);
     }
     savingMonitoring=true;syncMonitoringSwitches();
     try{
         const response=await fetch('./api/quiet-hours',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
-            body:new URLSearchParams({key:managementKey,enabled:String($('quiet-enabled').checked),start,end,restSchedule:JSON.stringify(rest)})});
-        if(!response.ok)throw Error(response.status===403?'请刷新页面后重试。':'请核对时间后重试。');
+            body:new URLSearchParams({key:managementKey,enabled:String($('quiet-enabled').checked),start,end,restSchedule:JSON.stringify(rest),calendar:JSON.stringify({region:regionSelect.value,overrides:dateOverrides}),calendarBase})});
+        if(!response.ok)throw Error(response.status===403?t('请刷新页面后重试。'):response.status===409?t('日历已在其他窗口更改，请刷新后重试。'):t('请核对时间后重试。'));
         const updated=await response.json();
         quietEdited=false;delete $('quiet-form').dataset.edited;restFormKey='';monitoringVersion++;receive(updated);
-        $('quiet-feedback').textContent='设置已保存。';
-    }catch(error){$('quiet-feedback').textContent='保存失败。'+error.message;}
+        $('quiet-feedback').textContent=t('设置已保存。');
+    }catch(error){$('quiet-feedback').textContent=t('保存失败。{error}',{error:error.message});}
     finally{savingMonitoring=false;syncMonitoringSwitches();}
 });
 async function toggleMonitoring(id){
@@ -626,14 +674,14 @@ async function toggleMonitoring(id){
             method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
             body:new URLSearchParams({key:managementKey,paused:String(!account.monitoringPaused)})
         });
-        if(!response.ok)throw Error(response.status===403?'请刷新页面后重试。':'请稍后重试。');
+        if(!response.ok)throw Error(response.status===403?t('请刷新页面后重试。'):t('请稍后重试。'));
         const updated=await response.json();
         monitoringVersion++;receive(updated);
-        $('monitor-feedback').textContent=!updated.monitoringChanged?'此账号已处于所选状态。':account.name+(account.monitoringPaused
-            ? (updated.quietUntil?' 已开启，免打扰结束后检测。':' 已开启，已提交一次开启时检测。')
-            : ' 已暂停检测。');
+        $('monitor-feedback').textContent=!updated.monitoringChanged?t('此账号已处于所选状态。'):t(account.monitoringPaused
+            ? (updated.quietUntil?'{name} 已开启，免打扰结束后检测。':'{name} 已开启，已提交一次开启时检测。')
+            : '{name} 已暂停检测。',{name:account.name});
     }catch(error){
-        $('monitor-feedback').textContent='未能确认 '+account.name+' 的检测设置。'+error.message;
+        $('monitor-feedback').textContent=t('未能确认 {name} 的检测设置。{error}',{name:account.name,error:error.message});
     }finally{savingMonitoring=false;syncMonitoringSwitches();}
 }
 $('accounts').addEventListener('click', e=>{
@@ -648,7 +696,18 @@ window.addEventListener('hashchange',()=>{
     if(dataset){hideTip();selectAccount();}
 });
 function receive(data){
+    const oldRegion=dataset?.autoRegion;
+    const oldZone=dataset?.timezone;
     dataset=data;
+    if(oldRegion!==data.autoRegion)renderRegions(data);
+    if(!initialLocaleChecked){
+        initialLocaleChecked=true;
+        if(managementKey && preferenceMeta && preference==='system'){
+            const region=new Intl.Locale(calendarLanguage()).maximize().region;
+            if(region && region!==data.autoRegion)queueMicrotask(changeLanguage);
+        }
+    }
+    if(oldZone!==data.timezone)renderZone();
     renderQuietSettings(data);
     for(const r of [...data.runs,...data.legacyRuns]){
         for(const k of ['svg','original','preview','thumbnail','thumbnailVideo','responseText']){
@@ -660,8 +719,8 @@ function receive(data){
     }
     timerOffset=Date.parse(data.serverTime)-Date.now();
     lastUpdated=Date.now();online=true;
-    $('connection').innerHTML='<i class="dot pulse"></i>本地服务在线';
-    const key=JSON.stringify([data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay]);
+    $('connection').innerHTML='<i class="dot pulse"></i>'+t('本地服务在线')+'';
+    const key=JSON.stringify([data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay,data.calendar,data.autoRegion,data.timezone]);
     if(key!==fingerprint){fingerprint=key;hideTip();selectAccount();}
     renderNotice();renderClock();
     if(initialSource){
@@ -676,14 +735,14 @@ async function refresh(){
         const path='./api/status'+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):'');
         const response=await fetch(path,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(4500)});
         if(snapshot && response.status===403){ location.reload();return; }
-        if(!response.ok) throw new Error('读取失败');
+        if(!response.ok) throw new Error(t('读取失败'));
         const updated=await response.json();
         if(version===monitoringVersion)receive(updated);
     }catch{
-        online=false;$('connection').textContent='正在重连';$('updated').textContent='连接中断';renderNotice();
+        online=false;$('connection').textContent=t('正在重连');$('updated').textContent=t('连接中断');renderNotice();
     }finally{syncMonitoringSwitches();setTimeout(refresh,5000);}
 }
-function showTip(button){const slot=slots[Number(button.dataset.slot)];if(!slot)return;const r=slot.run;const tip=$('tooltip');tip.innerHTML=r?((r.svg?thumbnail(r):'<div class="empty-tip">'+escapeHTML(r.stage||label(r.status))+'</div>')+'<strong>'+escapeHTML(stamp(r.startedAt)+' · '+label(r.status))+'</strong><p>'+escapeHTML(r.svg?'点击放大，可下载 SVG 或原始 HTML。':r.note||'生成结果会自动出现在这里。')+'</p>'):'<div class="empty-tip">'+stamp(slot.start)+' · 未记录运行</div><p style="margin-top:7px">该时段没有生成结果。</p>';tip.classList.remove('hidden');const rect=button.getBoundingClientRect(),width=tip.offsetWidth,height=tip.offsetHeight;tip.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.left+rect.width/2-width/2))+'px';tip.style.top=(rect.top-height-13>=12?rect.top-height-13:Math.min(innerHeight-height-12,rect.bottom+13))+'px';}
+function showTip(button){const slot=slots[Number(button.dataset.slot)];if(!slot)return;const r=slot.run;const tip=$('tooltip');tip.innerHTML=r?((r.svg?thumbnail(r):'<div class="empty-tip">'+escapeHTML(systemMessage(r.stage)||label(r.status))+'</div>')+'<strong>'+escapeHTML(stamp(r.startedAt)+' · '+label(r.status))+'</strong><p>'+escapeHTML(r.svg?t('点击放大，可下载 SVG 或原始 HTML。'):systemMessage(r.note)||t('生成结果会自动出现在这里。'))+'</p>'):'<div class="empty-tip">'+stamp(slot.start)+' · '+t('未记录运行')+'</div><p style="margin-top:7px">'+t('该时段没有生成结果。')+'</p>';tip.classList.remove('hidden');const rect=button.getBoundingClientRect(),width=tip.offsetWidth,height=tip.offsetHeight;tip.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.left+rect.width/2-width/2))+'px';tip.style.top=(rect.top-height-13>=12?rect.top-height-13:Math.min(innerHeight-height-12,rect.bottom+13))+'px';}
 function hideTip(){$('tooltip').classList.add('hidden');$('tooltip').replaceChildren()}
 let initialSource=new URLSearchParams(location.search).get('source');
 let detailRunId=null;
@@ -692,13 +751,13 @@ function backToDetails(){
     $('show-response')?.focus();
 }
 async function showResponse(r){
-    $('modal-title').textContent='模型原文';
+    $('modal-title').textContent=t('模型原文');
     const pre=document.createElement('pre');
     pre.className='raw-answer';
     pre.tabIndex=0;
-    pre.textContent='正在读取模型原文…';
+    pre.textContent=t('正在读取模型原文…');
     $('modal-art').replaceChildren(pre);
-    $('modal-links').innerHTML='<button type="button" id="back-to-detail">返回运行详情</button>';
+    $('modal-links').innerHTML='<button type="button" id="back-to-detail">'+t('返回运行详情')+'</button>';
     const back=$('back-to-detail');
     back.onclick=backToDetails;
     back.focus();
@@ -706,15 +765,15 @@ async function showResponse(r){
         const download=document.createElement('a');
         download.href=r.responseText;
         download.download='pelican-'+r.id+'.txt';
-        download.textContent='下载原文';
+        download.textContent=t('下载原文');
         $('modal-links').append(download);
     }
     try{
         const path=r.responseText+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):'');
         const response=await fetch(path,{headers:{Accept:'text/plain'},cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});
         if(!response.ok)throw Error('HTTP '+response.status);
-        pre.textContent=(await response.text())||'本次回复没有文字内容。';
-    }catch(error){pre.textContent='读取模型原文失败（'+error.message+'）';}
+        pre.textContent=(await response.text())||t('本次回复没有文字内容。');
+    }catch(error){pre.textContent=t('读取模型原文失败（{error}）',{error:error.message});}
 }
 $('modal').addEventListener('cancel',event=>{
     if($('back-to-detail')){event.preventDefault();backToDetails();}
@@ -725,23 +784,80 @@ function openRun(id){
     detailRunId=r.id;
     hideTip();
     $('modal-title').textContent=r.title;
-    $('modal-time').textContent=(state.account?.name||'早期记录')+' · 开始 '+stamp(r.startedAt)+(r.finishedAt?' · 结束 '+stamp(r.finishedAt):'')+' · '+label(r.status);
-    $('modal-note').textContent=[r.source==='magpie'?'喜鹊插件':'Codex 旧任务',triggerLabel(r),r.model,r.reasoningEffort,duration(r)].filter(Boolean).join(' · ');
+    $('modal-time').textContent=(state.account?.name||t('早期记录'))+' · '+t('开始')+' '+stamp(r.startedAt)+(r.finishedAt?' · '+t('结束')+' '+stamp(r.finishedAt):'')+' · '+label(r.status);
+    $('modal-note').textContent=[r.source==='magpie'?t('喜鹊插件'):t('Codex 旧任务'),triggerLabel(r),r.model,r.reasoningEffort,duration(r)].filter(Boolean).join(' · ');
     $('modal-art').innerHTML=r.original && r.status==='success'
         ? '<iframe src="'+escapeHTML(r.original)+'" title="'+escapeHTML(r.title)+'" sandbox="allow-scripts"></iframe>'
-        : '<div class="modal-message">'+escapeHTML(r.note||r.stage)+'</div>';
+        : '<div class="modal-message">'+escapeHTML(systemMessage(r.note||r.stage))+'</div>';
     const links=[];
-    if(r.original && !document.getElementById('snapshot'))links.push('<a href="'+escapeHTML(r.original)+'" target="_blank" rel="noopener noreferrer">打开原始 HTML ↗</a>');
-    if(r.original)links.push('<a href="'+escapeHTML(r.original)+'" download="pelican-'+r.id+'.html">下载 HTML</a>');
-    if(r.responseText)links.push('<button type="button" id="show-response">模型原文</button>');
-    if(r.svg)links.push('<a class="primary" href="'+escapeHTML(r.svg)+'" download="pelican-'+r.id+'.svg">下载 SVG ↓</a>');
+    if(r.original && !document.getElementById('snapshot'))links.push('<a href="'+escapeHTML(r.original)+'" target="_blank" rel="noopener noreferrer">'+t('打开原始 HTML ↗')+'</a>');
+    if(r.original)links.push('<a href="'+escapeHTML(r.original)+'" download="pelican-'+r.id+'.html">'+t('下载 HTML')+'</a>');
+    if(r.responseText)links.push('<button type="button" id="show-response">'+t('模型原文')+'</button>');
+    if(r.svg)links.push('<a class="primary" href="'+escapeHTML(r.svg)+'" download="pelican-'+r.id+'.svg">'+t('下载 SVG ↓')+'</a>');
     $('modal-links').innerHTML=links.join('');
     if(r.responseText)$('show-response').onclick=()=>showResponse(r);
     if(!$('modal').open)$('modal').showModal();
 }
 $('timeline').addEventListener('pointerover',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('pointerleave',hideTip);$('timeline').addEventListener('focusin',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('focusout',hideTip);$('timeline').addEventListener('click',e=>{const el=e.target.closest('[data-slot]');const r=el&&slots[Number(el.dataset.slot)]?.run;if(r)openRun(r.id)});window.addEventListener('scroll',hideTip,{passive:true});window.addEventListener('resize',hideTip);
 document.querySelectorAll('[data-hours]').forEach(b=>b.addEventListener('click',()=>{range=Number(b.dataset.hours);document.querySelectorAll('[data-hours]').forEach(x=>x.classList.toggle('active',x===b));hideTip();renderTimeline()}));$('gallery').addEventListener('click',e=>{const el=e.target.closest('[data-run]');if(el)openRun(el.dataset.run)});$('featured').addEventListener('click',()=>openRun(featureId));$('view-featured').addEventListener('click',()=>openRun(featureId));$('filter').addEventListener('change',e=>{filter=e.target.value;limit=12;if(state)renderGallery()});$('load-more').addEventListener('click',()=>{limit+=12;renderGallery()});$('close-modal').addEventListener('click',()=>$('modal').close());$('modal').addEventListener('click',e=>{if(e.target===$('modal')){const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('modal').close()}});$('modal').addEventListener('close',()=>{$('modal-art').innerHTML=''});document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderClock()});setInterval(renderClock,1000);renderClock();
+/*calendar-script*/
+function applyLanguage(){
+    locale=preference==='system'?systemLanguage():preference;
+    translateTemplate();renderZone();hideTip();
+    sampleButtons.forEach((button,i)=>{
+        button.setAttribute('aria-label',t('第 {n} 次抽样',{n:i+1}));
+        $('rest-count').options[i].text=t('{n} 次',{n:i+1});
+    });
+    if(dataset){
+        renderRegions(dataset);renderQuietSettings(dataset);updateRestForm();
+        if($('calendar-editor').open)drawMonth();
+        featureId=null;selectAccount();
+        $('connection').innerHTML=online?'<i class="dot pulse"></i>'+t('本地服务在线'):t('正在重连');
+        if(!online)$('updated').textContent=t('连接中断');
+        $('quiet-feedback').textContent=quietEdited?t('有未保存的更改'):'';
+        $('monitor-feedback').textContent='';
+        if($('modal').open){
+            const raw=Boolean($('back-to-detail'));
+            openRun(detailRunId);
+            if(raw){const run=state.runs.find(r=>r.id===detailRunId);if(run)showResponse(run);}
+        }
+    }
+    renderClock();
+}
+function calendarLanguage(){
+    const tags=navigator.languages?.length?navigator.languages:[navigator.language];
+    if(preference==='system')return tags[0] || 'zh-CN';
+    for(const tag of tags){
+        try{
+            const lang=new Intl.Locale(tag);
+            if(lang.region && (lang.language===preference ||
+                (lang.language==='zh' && (lang.maximize().script==='Hant'?'zh-TW':'zh-CN')===preference)))return tag;
+        }catch{}
+    }
+    return preference;
+}
+async function changeLanguage(){
+    preference=languageMenu.value;
+    applyLanguage();
+    languageMenu.disabled=true;
+    try{
+        if(managementKey){
+            const res=await fetch('./api/language',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(8000),
+                body:new URLSearchParams({key:managementKey,language:preference,locale:calendarLanguage()})});
+            if(!res.ok)throw Error(String(res.status));
+            const response=await fetch('./api/status'+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):''),{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
+            if(response.ok)receive(await response.json());
+        }
+        if(!preferenceMeta)localStorage.setItem(preferenceKey,preference);
+    }catch{
+        $('language-feedback').textContent=t('未能保存语言偏好');
+    }finally{languageMenu.disabled=false;}
+}
+languageMenu.addEventListener('change',()=>{$('language-feedback').textContent='';changeLanguage();});
+window.addEventListener('languagechange',()=>{if(preference==='system')changeLanguage();});
+let initialLocaleChecked=false;
 const snapshot=$('snapshot');
+renderZone();
 if(snapshot) receive(JSON.parse(snapshot.textContent));
 refresh();
 </script>

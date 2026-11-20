@@ -3,19 +3,40 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFile
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
-import { day, minute, midnight, dayType, sampleMinutes, defaultRestSchedule, validRestSchedule } from './rest-days.mjs';
+import { minute, midnight, localMinute, dateKey, dayType, defaultCalendar, validCalendar, hostLanguage, languageRegion, regions, sampleMinutes, defaultRestSchedule, validRestSchedule } from './rest-days.mjs';
 
 export const hour = 3600000;
 const defaultQuietHours = Object.freeze({ enabled: false, start: 23 * 60, end: 7 * 60 });
 
-// Beijing time is UTC+8, independently of the computer's time zone.
+// A local civil day can have 23 or 25 hours at a daylight-saving transition.
+function inQuietPeriod(settings, at) {
+  const d = new Date(at);
+  const m = d.getHours()*60 + d.getMinutes();
+  return settings.start < settings.end ? m >= settings.start && m < settings.end : m >= settings.start || m < settings.end;
+}
 export function quietWindow(settings, now) {
   if (!settings?.enabled) return null;
-  const midnight = Math.floor((now + 8 * hour) / day) * day - 8 * hour;
-  let start = midnight + settings.start * minute;
-  if (start > now) start -= day;
-  const end = start + ((settings.end - settings.start + 1440) % 1440) * minute;
-  return now < end ? { start, end } : { start: start + day, end: end + day };
+  let base = midnight(now);
+  // A repeated hour can contain two separate quiet windows. Resolve boundaries
+  // on the real timeline on transition days, including skipped wall-clock times.
+  if (new Date(localMinute(base,-1440)).getTimezoneOffset() !== new Date(localMinute(base,2880)).getTimezoneOffset()) {
+    let start = Math.floor(now/minute)*minute;
+    if (inQuietPeriod(settings,start)) {
+      while (inQuietPeriod(settings,start-minute)) start -= minute;
+    } else {
+      while (!inQuietPeriod(settings,start)) start += minute;
+    }
+    let end = Math.max(start,Math.floor(now/minute)*minute)+minute;
+    while (inQuietPeriod(settings,end)) end += minute;
+    return {start,end};
+  }
+  if (localMinute(base, settings.start) > now) base = localMinute(base, -1440);
+  const window = day => ({
+    start: localMinute(day, settings.start),
+    end: localMinute(day, settings.end + (settings.end < settings.start ? 1440 : 0))
+  });
+  const current = window(base);
+  return now < current.end ? current : window(localMinute(base, 1440));
 }
 
 function scheduledTime(slot, first, low, high, quiet) {
@@ -26,7 +47,7 @@ function scheduledTime(slot, first, low, high, quiet) {
     const allowed = [];
     for (let m = offset ? 1 : first; m <= 59; m++) {
       const at = base + m * minute;
-      if (at < quietWindow(quiet, at).start) allowed.push(m);
+      if (!inQuietPeriod(quiet, at)) allowed.push(m);
     }
     if (!allowed.length) continue;
     const preferred = offset ? allowed : allowed.filter(m => m >= low && m <= high);
@@ -121,20 +142,44 @@ export class Archive {
     return this.info.restSchedule || defaultRestSchedule;
   }
 
-  setQuietHours(settings, now = Date.now(), rest = this.restSchedule) {
+  autoRegion(info = this.info) {
+    const systemChanged = (!info.language || info.language === 'system') && info.languageHost !== hostLanguage;
+    return languageRegion(systemChanged ? hostLanguage : info.calendarLocale || hostLanguage);
+  }
+
+  calendarRegion(info = this.info) {
+    const region = info.calendar?.region;
+    return region && region !== 'auto' ? region : this.autoRegion(info);
+  }
+
+  classify(at, info = this.info) {
+    return dayType(at, this.calendarRegion(info), info.calendar?.overrides);
+  }
+
+  setLanguage(language, tag, now = Date.now()) {
+    if (this.info.language === language && this.info.calendarLocale === tag && this.info.languageHost === hostLanguage) return;
+    const changes = { language, calendarLocale: tag, languageHost: hostLanguage };
+    if (this.restSchedule.enabled && this.calendarRegion() !== this.calendarRegion({ ...this.info, ...changes })) {
+      changes.nextByAccount = {};
+    }
+    this.planDispatches(now, changes);
+  }
+
+  setQuietHours(settings, now = Date.now(), rest = this.restSchedule, calendar = this.info.calendar || defaultCalendar) {
     const { enabled, start, end } = settings;
     if (typeof enabled !== 'boolean' || [start, end].some(t => !Number.isInteger(t) || t < 0 || t >= 1440) || start === end) return false;
-    if (!validRestSchedule(rest, settings)) return false;
+    if (!validCalendar(calendar) || !validRestSchedule(rest, settings)) return false;
     const previous = this.quietHours;
     const quietChanged = enabled !== previous.enabled || start !== previous.start || end !== previous.end;
     const restChanged = JSON.stringify(this.restSchedule) !== JSON.stringify(rest);
-    if (quietChanged || restChanged) {
+    const calendarChanged = JSON.stringify(this.info.calendar || defaultCalendar) !== JSON.stringify(calendar);
+    if (quietChanged || restChanged || calendarChanged) {
       // Reconsider plans postponed by the previous window when it is edited.
       const nextByAccount = { ...this.info.nextByAccount };
       for (const [id, at] of Object.entries(nextByAccount)) {
-        if ((quietChanged && previous.enabled) || (restChanged && (dayType(at).rest || dayType(now).rest))) delete nextByAccount[id];
+        if ((quietChanged && previous.enabled) || (restChanged && (this.classify(at).rest || this.classify(now).rest)) || (rest.enabled && (this.classify(at).rest !== this.classify(at,{...this.info,calendar}).rest || this.classify(now).rest !== this.classify(now,{...this.info,calendar}).rest))) delete nextByAccount[id];
       }
-      this.planDispatches(now, { quietHours: { enabled, start, end }, restSchedule: rest, nextByAccount });
+      this.planDispatches(now, { quietHours: { enabled, start, end }, restSchedule: rest, calendar, nextByAccount });
     }
     return true;
   }
@@ -158,7 +203,7 @@ export class Archive {
     }
   }
 
-  nextHourly(id, now, info, from, until = Infinity) {
+  nextHourly(id, now, info, from, until = Infinity, since = -Infinity) {
     const slot = Math.floor(now / hour);
     const quiet = info.quietHours || defaultQuietHours;
     // Older versions finished the entire hour in a single batch.
@@ -166,7 +211,7 @@ export class Archive {
     const used = this.records.has(id + '-' + slot) || Math.floor(resumed / hour) === slot || (!info.nextByAccount && info.completedSlot === slot);
     let target = Math.max(slot + Number(used), from || 0);
     const due = info.nextByAccount?.[id];
-    if (Number.isSafeInteger(due) && Math.floor(due / hour) >= target && due < until) {
+    if (Number.isSafeInteger(due) && Math.floor(due / hour) >= target && due < until && due >= since) {
       const window = quietWindow(quiet, now);
       const conflicts = window && (quietWindow(quiet, due).start <= due || (window.start <= now && due <= now));
       if (!conflicts) {
@@ -174,6 +219,7 @@ export class Archive {
       }
     }
     let earliest = target === slot ? Math.floor((now % hour) / minute) + 1 : 1;
+    if (Math.floor(since / hour) === target) earliest = Math.max(earliest, Math.ceil((since % hour)/minute));
     if (earliest > 59) { target++; earliest = 1; }
     const previous = this.records.get(id + '-' + (target - 1));
     const started = previous ? Math.max(Date.parse(previous.startedAt), resumed) : resumed;
@@ -196,22 +242,23 @@ export class Archive {
     const firstDay = midnight(Math.max(now, from * hour));
     // No plan can be more than two normal weekends away, even with an
     // hourly window that only permits minute zero.
-    for (let start = firstDay; start < firstDay + 15 * day; start += day) {
-      if (!dayType(start).rest) {
-        const at = this.nextHourly(id, now, info, Math.max(from, start/hour), start+day);
-        if (at !== null && at < start+day) return at;
+    for (let start = firstDay, n = 0; n < 15; start = localMinute(start,1440), n++) {
+      const end = localMinute(start,1440);
+      if (!this.classify(start,info).rest) {
+        const at = this.nextHourly(id, now, info, Math.max(from, Math.floor(start/hour)), end, start);
+        if (at !== null && at < end) return at;
         continue;
       }
       if ((this.dailyChecks.get(id+'@'+start) || 0) >= rest.count) continue;
       const points = sampleMinutes(rest, quiet, start, id);
       for (let i=0; i<points.length; i++) {
-        const at = start + points[i]*minute;
+        const at = localMinute(start,points[i]);
         if (at < from*hour || this.records.has(id+'-sample-'+Math.floor(at/minute))) continue;
         if (at >= Math.floor(now/minute)*minute) return at;
         // A busy queue may still use its saved appointment. Never replay a
         // previous window after sleep, across a quiet period, or on another date.
         const window = quietWindow(quiet, at);
-        const expires = Math.min(at+hour, start+(points[i+1] ?? 1440)*minute, window?.start ?? Infinity);
+        const expires = Math.min(at+hour, localMinute(start, points[i+1] ?? 1440), window?.start ?? Infinity);
         if (at === info.nextByAccount?.[id] && now < expires) return at;
       }
     }
@@ -269,11 +316,12 @@ export class Archive {
       dest.push(Object.fromEntries(publicFields.filter(k => k in r).map(k => [k, r[k]])));
     }
     const rest = this.restSchedule;
-    const today = dayType(now);
+    const today = this.classify(now);
     let previewDay = midnight(now);
-    while (!dayType(previewDay).rest) previewDay += day;
+    for (let n=0; n<370 && !this.classify(previewDay).rest; n++) previewDay = localMinute(previewDay,1440);
+    const hasPreview = this.classify(previewDay).rest;
     const ordered = accounts.map(a => ({ ...a, monitoringPaused: this.info.monitoringFromSlot?.[a.id] === null,
-      restSampleMinutes: rest.enabled && a.enabled && a.present && this.info.monitoringFromSlot?.[a.id] !== null
+      restSampleMinutes: hasPreview && rest.enabled && a.enabled && a.present && this.info.monitoringFromSlot?.[a.id] !== null
         ? sampleMinutes(rest, this.quietHours, previewDay, a.id) : [],
       pendingSwitchChecks: (this.info.switchChecks || []).filter(check => check.accountId === a.id).length,
       nextDispatchAt: this.info.nextByAccount?.[a.id] ?? null }))
@@ -281,9 +329,9 @@ export class Archive {
       a.name.localeCompare(b.name, 'zh-CN'));
     const scheduled = ordered.map(a => a.nextDispatchAt).filter(Number.isFinite);
     const window = quietWindow(this.quietHours, now);
-    return { name: '鹈鹕巡检', timezone: 'Asia/Shanghai', prompt, model, reasoningEffort: effort,
+    return { name: '鹈鹕巡检', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, prompt, model, reasoningEffort: effort,
       runtime: 'magpie-plugin', intervalMinutes: rest.enabled && today.rest ? null : 60, scheduleStatus: 'active', defaultAccountId, accounts: ordered,
-      restSchedule: rest, calendarDay: today, restPreviewDay: previewDay,
+      restSchedule: rest, calendar: this.info.calendar || defaultCalendar, calendarRegion: this.calendarRegion(), autoRegion: this.autoRegion(), regions, todayKey: dateKey(now), calendarDay: today, restPreviewDay: previewDay,
       quietHours: this.quietHours, quietUntil: window && now >= window.start ? window.end : null,
       lastDispatchAt: lastDispatchAt ?? null, nextDispatchAt: scheduled.length ? Math.min(...scheduled) : null,
       monitorError: error || '', runs, legacyRuns, serverTime: new Date(now).toISOString(), pollSeconds: 5 };

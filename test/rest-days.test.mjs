@@ -7,6 +7,8 @@ import { createScheduler } from '../monitor.mjs';
 import { serveGallery } from '../gallery.mjs';
 import { dayType, midnight, sampleMinutes, validRestSchedule } from '../rest-days.mjs';
 
+// These fixtures describe mainland Chinese working dates in the Shanghai time zone.
+process.env.TZ = 'Asia/Shanghai';
 const beijing = value => Date.parse(value + '+08:00');
 const quiet = {enabled:true, start:1320, end:420};
 const even = {enabled:true, count:4, distribution:'even', times:[]};
@@ -59,7 +61,7 @@ test('dispatch, archive, restart and edit timing with two appointments in one ho
     expect(calls).toBe(n);expect([...archive.records.values()].filter(r=>r.status==='success').length).toBe(n);
   };
   try{
-    archive.saveInfo({accounts:[account]});
+    archive.saveInfo({calendar:{region:'CN',overrides:{}},accounts:[account]});
     expect(archive.setQuietHours(quiet,now,custom([540,542,1260]))).toBe(true);
     expect(archive.info.nextByAccount[id]).toBe(beijing('2026-11-21T09:00'));
     now=beijing('2026-11-21T06:50');await dispatch(gateway);expect(calls).toBe(0);

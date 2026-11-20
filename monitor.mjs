@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { effort, extractArtwork, hour, inputSha256, model, prompt, quietWindow, sha256 } from './archive.mjs';
 
-import { dayType, minute } from './rest-days.mjs';
+import { minute } from './rest-days.mjs';
 
 const run = promisify(execFile);
 const qualifiedModel = 'codex/' + model;
@@ -251,7 +251,7 @@ export function createScheduler(archive, discover = listAccounts, clock = Date.n
     const ready = entries.filter(e => next[e.account.id] <= now).sort((a, b) => next[a.account.id] - next[b.account.id]);
     for (const entry of ready) {
       const at = next[entry.account.id];
-      const sample = archive.restSchedule.enabled && dayType(at).rest;
+      const sample = archive.restSchedule.enabled && archive.classify(at).rest;
       launch(entry, sample ? { key: 'sample-'+Math.floor(at/minute), trigger: 'rest-sample',
         requestedAt: new Date(at).toISOString() } : undefined);
     }

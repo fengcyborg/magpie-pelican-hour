@@ -1,7 +1,11 @@
+import { dayType, regions, hostLanguage, dateKey } from './rest-days.mjs';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const page = readFileSync(new URL('./gallery/index.html', import.meta.url), 'utf8');
+const galleryFile = name => readFileSync(new URL('./gallery/' + name, import.meta.url), 'utf8');
+const messages = galleryFile('messages.json').replaceAll('<', '\\u003c');
+const page = galleryFile('index.html').replace('/*calendar-script*/', () => galleryFile('calendar.js')).replace('<!--language-script-->', () =>
+  '<script type="application/json" id="translations">' + messages + '</script><script>' + galleryFile('language.js') + '</script>');
 const icon = readFileSync(new URL('./page/icon.png', import.meta.url));
 const allowedArtifact = /^\/(?:runs\/\d{8}-\d{6}|accounts\/[0-9a-f]{20}\/runs\/(?:\d{6,9}|\d{8}-\d{6}|switch-[0-9a-f]{32}|sample-\d{1,12}))\/(?:original\.html|preview\.html|artwork\.svg|thumbnail\.(?:gif|png|mp4)|response\.txt)$/;
 const pagePolicy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'";
@@ -21,13 +25,13 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
   const embeddedKey = crypto.randomUUID();
   const managementKey = crypto.randomUUID();
   return Bun.serve({
-    port, hostname, reusePort: false, development: false, maxRequestBodySize: 4096,
+    port, hostname, reusePort: false, development: false, maxRequestBodySize: 131072,
     async fetch(req, server) {
       const url = new URL(req.url);
       const path = url.pathname;
       const isLocal = localHosts.has(url.hostname) && localPeers.has(server.requestIP(req)?.address);
       const control = /^\/api\/accounts\/([0-9a-f]{20})\/monitoring$/.exec(path);
-      if (control || path === '/api/quiet-hours') {
+      if (control || path === '/api/quiet-hours' || path === '/api/language') {
         const origin = req.headers.get('Origin');
         const headers = { 'Cache-Control': 'no-store', Vary: 'Origin' };
         if (origin === 'null') headers['Access-Control-Allow-Origin'] = 'null';
@@ -35,6 +39,15 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
         if (!isLocal || (origin && origin !== 'null' && origin !== url.origin)) return new Response(null, { status: 403, headers });
         const form = new URLSearchParams(await req.text());
         if (form.get('key') !== managementKey) return new Response(null, { status: 403, headers });
+        if (path === '/api/language') {
+          const language = form.get('language');
+          if (!['system', 'zh-CN', 'zh-TW', 'en', 'ja', 'de'].includes(language)) return new Response(null, { status: 400, headers });
+          let tag;
+          try { tag = new Intl.Locale(form.get('locale') || hostLanguage).toString(); }
+          catch { return new Response(null, { status: 400, headers }); }
+          archive.setLanguage(language, tag);
+          return new Response(null, { status: 204, headers });
+        }
         if (!control) {
           const enabled = form.get('enabled');
           let rest = archive.restSchedule;
@@ -44,8 +57,15 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
               rest = { enabled: value.enabled, count: value.count, distribution: value.distribution, times: value.times };
             } catch { return new Response(null, { status: 400, headers }); }
           }
+          let calendar;
+          if (form.has('calendar')) {
+            try { calendar = JSON.parse(form.get('calendar')); }
+            catch { return new Response(null, { status: 400, headers }); }
+            if (form.get('calendarBase') !== JSON.stringify(archive.info.calendar || {region:'auto',overrides:{}}))
+              return new Response(null, { status: 409, headers });
+          }
           if (!['true', 'false'].includes(enabled) || !archive.setQuietHours({ enabled: enabled === 'true',
-            start: timeValue(form.get('start')), end: timeValue(form.get('end')) }, Date.now(), rest)) return new Response(null, { status: 400, headers });
+            start: timeValue(form.get('start')), end: timeValue(form.get('end')) }, Date.now(), rest, calendar)) return new Response(null, { status: 400, headers });
           onQuietHoursChange?.();
           return Response.json(archive.status(), { headers });
         }
@@ -72,14 +92,26 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
             Location: up + '?' + embed + 'source=' + encodeURIComponent(run.id) + '#' + encodeURIComponent(run.accountId || 'history') } });
         }
       }
-      if ((path === '/api/status' || rawText) && req.headers.get('Origin') === 'null') {
+      if ((path === '/api/status' || path === '/api/calendar' || rawText) && req.headers.get('Origin') === 'null') {
         if (url.searchParams.get('view') !== embeddedKey) {
           return new Response(null, { status: 403, headers: { 'Access-Control-Allow-Origin': 'null', 'Cache-Control': 'no-store' } });
         }
         extra['Access-Control-Allow-Origin'] = 'null';
         extra['Vary'] = 'Origin';
       }
-      if (path === '/api/status') {
+      if (path === '/api/calendar') {
+        const month = url.searchParams.get('month') || '';
+        const region = url.searchParams.get('region') || 'auto';
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || (region !== 'auto' && !regions.includes(region)))
+          return new Response(null, { status: 400, headers: extra });
+        const [year,m] = month.split('-').map(Number);
+        const dates = [];
+        for (let d=1; d<=new Date(year,m,0).getDate(); d++) {
+          const at = new Date(year,m-1,d,12);
+          dates.push({date:dateKey(at), ...dayType(at,region==='auto'?archive.autoRegion():region)});
+        }
+        body = JSON.stringify(dates); type = 'application/json; charset=utf-8';
+      } else if (path === '/api/status') {
         body = JSON.stringify(archive.status()); type = 'application/json; charset=utf-8';
       } else if (path === '/' || path === '/index.html') {
         body = page; type = 'text/html; charset=utf-8';
@@ -89,6 +121,9 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
           policy = pagePolicy.replaceAll("'self'", "'self' http://127.0.0.1:" + port);
         }
         if (isLocal) {
+          const language = archive.info.language;
+          const preference = ['zh-CN', 'zh-TW', 'en', 'ja', 'de'].includes(language) ? language : 'system';
+          body = body.replace('<!--local-language-->', '<meta name="local-language" content="' + preference + '">');
           body = body.replace('<!--monitor-control-->', '<meta name="monitor-control" content="' + managementKey + '">');
           policy += "; frame-ancestors 'self' http://localhost:* http://127.0.0.1:* wails://localhost http://wails.localhost";
         }

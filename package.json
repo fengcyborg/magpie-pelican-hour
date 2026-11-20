@@ -1,6 +1,6 @@
 {
   "name": "magpie-pelican-hour",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "type": "module",
   "main": "./index.mjs",
   "description": "鹈鹕巡检 · Pelican Monitor for Magpie — 按账号定时检测 Codex 订阅，查看固定提示词生成的动画和运行记录。",
@@ -35,7 +35,9 @@
     "input.txt",
     "preview.css",
     "gallery",
-    "page"
+    "page",
+    "calendars.json",
+    "CALENDAR-LICENSE"
   ],
   "publishConfig": {
     "access": "public",
@@ -50,7 +52,14 @@
       "service": {
         "port": 18765
       },
-      "icon": "page/icon.png"
+      "icon": "page/icon.png",
+      "titles": {
+        "en": "Pelican Monitor",
+        "zh": "鹈鹕巡检",
+        "zh-TW": "鵜鶘巡檢",
+        "ja": "ペリカンモニター",
+        "de": "Pelikan-Monitor"
+      }
     }
   }
 }
