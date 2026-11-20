@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f8fa"><title>鹈鹕巡检</title><link rel="icon" href="./pelican-icon.png" type="image/png">
+<style>
+:root{--bg:#f7f8fa;--paper:#fff;--ink:#25332f;--muted:#929a98;--line:#e8ece9;--green:#2d7657;--purple:#7a6bd9;--violet-bg:#f0edfd;--orange:#d79a47;--red:#d77974;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button,a,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #9a8ee3;outline-offset:4px}button{color:inherit}header{border-bottom:1px solid var(--line);background:#ffffffb8}nav{max-width:1224px;padding:23px 42px;margin:auto;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:680;letter-spacing:-.6px}.brand img{width:32px;height:32px;border-radius:8px}.brand small{font-size:10px;letter-spacing:1.5px;color:var(--muted);font-weight:500;border-left:1px solid var(--line);padding-left:13px;margin-left:3px}.nav-right{display:flex;align-items:center;gap:22px;font-size:11px;color:#808b84}.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:20px;font-size:10px;white-space:nowrap;background:#edf5ef;color:#4f7a5e}.dot{width:6px;height:6px;flex-shrink:0;background:#65a67c;border-radius:50%}.pulse{animation:pulse 2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 4px #65a67c15}}main{max-width:1224px;margin:0 auto;padding:42px 42px 32px}.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:#98a19b;text-transform:uppercase}.hero{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px;gap:30px}.hero h1{font-size:36px;line-height:1.35;letter-spacing:-1.4px;font-weight:620;margin:15px 0 12px}.hero h1 span{color:#677e6a}.hero p{font-size:12px;color:#89948d;line-height:1.9;margin:0}.clock{min-width:165px;border-left:1px solid #dfe5df;padding-left:26px}.clock .time{font-family:var(--mono);font-size:26px;letter-spacing:-.5px;margin:9px 0 6px}.clock .date{font-size:10px;color:#9ca49e;letter-spacing:.4px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}.stat{border:1px solid var(--line);border-radius:15px;background:white;padding:20px 23px;min-height:118px}.stat-label{font-size:11px;color:#8a958d;display:flex;justify-content:space-between;align-items:center}.tiny-icon{font-size:14px;color:#a7b4a8;font-weight:400}.stat-value{font-family:var(--mono);font-size:31px;line-height:1.25;letter-spacing:-1.3px;margin:12px 0 5px;color:#344c3e}.stat-value small{font-family:inherit;font-size:12px;letter-spacing:0;margin-left:5px;color:#90a092}.stat-value.purple{color:var(--purple);font-size:28px}.stat-foot{font-size:10px;color:#a1aaa3}.workspace{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 3px 6px #29382902}.panel-pad{padding:25px}.panel-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-title{font-size:14px;font-weight:630;letter-spacing:-.2px;display:flex;align-items:center;gap:9px}.panel-title .mark{width:4px;height:14px;background:var(--purple);border-radius:3px}.hint{font-size:10px;color:#99a29c}.timeline-box{background:var(--violet-bg);margin-top:22px;padding:20px 18px 17px;border-radius:13px}.timeline-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#7167a4}.tabs{display:flex;gap:3px;background:#e7e2f8;padding:3px;border-radius:7px}.tabs button{border:0;border-radius:5px;padding:4px 7px;background:transparent;font-size:9px;color:#897eb5}.tabs button.active{background:white;color:#7060ba;box-shadow:0 1px 3px #6559a91a}.timeline{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;align-items:stretch;margin:20px 0 9px}.timeline.week{grid-template-columns:repeat(56,minmax(0,1fr));gap:3px}.segment{height:33px;width:100%;padding:0;border:1px solid #dbd5f2;background:#dfd9f3;border-radius:2px;transition:transform .15s,filter .15s;position:relative}.segment:hover,.segment:focus-visible{transform:translateY(-3px);filter:brightness(1.04);z-index:2}.segment.success{border-color:#8273d8;background:#887ade}.segment.running{background:#e8b361;border-color:#d9a04d;animation:working 1.5s ease-in-out infinite}.segment.failed,.segment.interrupted{background:#d88482;border-color:#ca7471}.segment.latest{box-shadow:0 0 0 2px var(--violet-bg),0 0 0 3px #6cbeac}.segment.week-item{height:13px}.range-label{display:flex;justify-content:space-between;font-size:9px;color:#a095c8}.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:9px;color:#9489ba;margin-top:19px}.legend span{display:flex;align-items:center;gap:5px}.legend i{display:inline-block;width:6px;height:6px;border-radius:1px;background:#dfd9f3}.legend .ok{background:#887ade}.legend .busy{background:#e8b361}.legend .bad{background:#d88482}.status-section{margin-top:24px}.status-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin:15px 0;color:#909b93}.status-row strong{font-weight:500;color:#58695d;font-size:11px;max-width:68%;text-align:right}.status-row strong.good{color:#3f8762}.status-row strong.warn{color:#bc8b45}.divider{border:0;border-top:1px solid var(--line);margin:20px 0}.workflow{display:flex;align-items:center;gap:6px;margin-top:19px;color:#b5bcb7;font-size:9px}.step{display:flex;gap:5px;align-items:center;white-space:nowrap}.step b{font-family:var(--mono);font-size:9px;border:1px solid #e1e6e2;border-radius:50%;width:16px;height:16px;display:grid;place-items:center;font-weight:500}.step.done{color:#6d9b79}.step.done b{background:#edf5ed;border-color:#e1eddf}.step.active{color:#b58743}.step.active b{background:#fff4df;border-color:#ecd6b1}.connector{height:1px;flex:1;background:#e8ece8}.footnote{color:#a8afa9;font-size:9px;line-height:1.8;margin:17px 0 0}.art-panel{display:flex;flex-direction:column}.art-header{padding:25px 25px 18px}.art-body{padding:0 17px;flex:1;display:grid;align-items:center}.art-button{background:#eef2e9;border:1px solid #e9eee4;border-radius:10px;overflow:hidden;width:100%;padding:0;position:relative;display:block;aspect-ratio:1000/710}.art-button :is(img,video){width:100%;height:100%;object-fit:contain;display:block;transition:transform .5s}.art-button:hover :is(img,video){transform:scale(1.025)}.art-empty{display:grid;place-items:center;height:100%;font-size:12px;color:#a2ab9f}.enlarge{position:absolute;bottom:12px;right:12px;background:#ffffffed;color:#627263;padding:7px 9px;border-radius:6px;font-size:9px;opacity:0;transition:opacity .2s;box-shadow:0 3px 9px #2c3c2312}.art-button:hover .enlarge,.art-button:focus-visible .enlarge{opacity:1}.art-caption{padding:20px 25px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px}.art-caption h3{font-size:12px;margin:0 0 7px;font-weight:550}.art-caption p{font-size:9px;color:#98a298;margin:0;font-family:var(--mono)}.text-link{font-size:10px;color:#8e82bf;border:0;background:transparent;padding:4px;white-space:nowrap}.archive{margin-top:35px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.section-head h2{font-size:15px;letter-spacing:-.2px;font-weight:620;margin:0}.section-head h2 span{font:10px var(--mono);color:#a0a89f;margin-left:11px}.archive-tools{display:flex;gap:10px;align-items:center}.select{background:transparent;border:1px solid #e3e7e2;border-radius:6px;padding:6px 9px;font-size:10px;color:#8d998f}.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.card{border-radius:13px;border:1px solid var(--line);background:#fff;overflow:hidden;text-align:left;padding:0;transition:transform .2s,box-shadow .2s;min-width:0}.card:hover{transform:translateY(-3px);box-shadow:0 9px 25px #35482d09}.card-cover{aspect-ratio:1.7;background:#f0f3e9;overflow:hidden;margin:8px 8px 0;border-radius:7px;display:grid;place-items:center}.card-cover :is(img,video){width:100%;height:100%;object-fit:contain}.card-info{padding:14px 15px 16px}.card-time{font-family:var(--mono);font-size:9px;color:#99a296;display:flex;align-items:center;justify-content:space-between}.badge{display:flex;gap:4px;align-items:center;color:#7a9d7c;font-family:inherit;font-size:9px}.badge:before{content:'';display:inline-block;width:4px;height:4px;background:#83b08a;border-radius:50%}.badge.fail{color:#c27873}.badge.fail:before{background:#c27873}.card-info h3{font-size:11px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:9px 0 0}.await-card{border:1px dashed #dce3da;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:195px;color:#a5afa1;background:#f2f5ef6b}.await-icon{font-size:24px;font-weight:200;color:#b7c4ad;margin-bottom:13px}.await-card strong{font-size:11px;font-weight:400;margin-bottom:8px}.await-card small{font-size:9px;color:#b3bcb0}.prompt-details{margin-top:28px;border-top:1px solid #e5e9e2;padding-top:20px}.prompt-details summary{font-size:10px;color:#a2ab9f;cursor:pointer;width:fit-content}.prompt-details p{font-size:11px;line-height:1.9;color:#899782;background:#eef2e9;padding:15px;border-radius:8px;max-width:850px}footer{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#a4ada2;padding-top:25px;margin-top:5px;gap:15px}footer .brand-mini{letter-spacing:1px;font-family:var(--mono);font-size:9px}.error-bar{margin-bottom:18px;border:1px solid #f1dbc4;background:#fff6eb;color:#ad7e48;padding:13px 17px;border-radius:10px;font-size:11px;line-height:1.6}.hidden{display:none!important}.tooltip{position:fixed;z-index:30;width:326px;max-width:calc(100vw - 24px);padding:8px;background:#171d29;color:white;border-radius:12px;box-shadow:0 14px 35px #18213335;pointer-events:none}.tooltip :is(img,video){width:100%;aspect-ratio:1000/710;display:block;object-fit:contain;background:#f6f5ed;border-radius:7px}.tooltip strong{font-size:11px;font-weight:450;display:block;margin:8px 1px 4px}.tooltip p{font-size:10px;line-height:1.5;margin:0 1px 3px;color:#a9aeb9}.tooltip .empty-tip{background:#242b39;border-radius:7px;min-height:45px;padding:12px;font-size:11px;color:#d5d2e5}dialog{padding:0;border:0;border-radius:19px;width:min(1020px,94vw);max-height:94vh;box-shadow:0 30px 100px #15241845;background:#fff;overflow:auto;color:var(--ink)}dialog::backdrop{background:#15251f9e;backdrop-filter:blur(8px)}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #e9ece6;gap:15px}.modal-head h2{font-size:14px;font-weight:550;margin:0 0 5px}.modal-head p{font:10px var(--mono);color:#9aa591;margin:0}.close{border:1px solid #e5eae1;background:white;width:30px;height:30px;border-radius:50%;font-size:20px;line-height:1;color:#879480;flex-shrink:0}.modal-art{background:#f4f5ec;display:flex;align-items:center;justify-content:center;min-height:150px}.modal-art iframe{width:100%;height:min(66vh,650px);border:0;display:block}.modal-message{padding:50px 30px;font-size:13px;color:#b18b5e;text-align:center}.modal-actions{display:flex;gap:15px;justify-content:space-between;align-items:center;padding:16px 22px}.modal-actions span{font-size:10px;color:#9caa95}.modal-links{display:flex;flex-wrap:wrap;gap:9px}.modal-links a{border:1px solid #e5e9e0;padding:8px 11px;border-radius:7px;font-size:10px;color:#708066}.modal-links a.primary{background:#42664d;color:white;border-color:#42664d}.load-more{display:block;margin:20px auto 0;padding:9px 18px;border:1px solid #dfe6d9;border-radius:8px;background:#fff;color:#7a8870;font-size:11px}@keyframes working{50%{opacity:.45}}@media(min-width:1350px){main{padding-top:48px}}@media(max-width:850px){nav{padding:20px 25px}main{padding:30px 25px}.workspace{grid-template-columns:1fr 1fr;gap:14px}.panel-pad{padding:20px 17px}.art-header{padding:20px 19px 17px}.stats{gap:10px}.stat{padding:17px}.workflow{gap:4px;font-size:8px}.stat-value{font-size:28px}.timeline-box{padding:17px 12px}.timeline{gap:2px}.hero h1{font-size:32px}.gallery{gap:12px}}@media(max-width:650px){nav{padding:16px 19px}.brand{font-size:16px}.brand small,.nav-right>span:first-child{display:none}.nav-right{gap:10px}.hero{margin-bottom:25px;align-items:flex-end}.hero h1{font-size:28px}.hero p{font-size:11px;max-width:245px}.hero{display:grid;gap:12px}.hero p{max-width:none}.clock{display:flex;align-items:baseline;gap:9px;padding:0;border:0}.clock .eyebrow{letter-spacing:0}.clock .time{font-size:16px;margin:0}.clock .date{font-size:10px}main{padding:27px 18px}.stats{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:15px}.stat{padding:17px 19px;min-height:112px}.workspace{grid-template-columns:1fr;gap:16px}.panel-pad{padding:23px}.art-header{padding:23px 23px 18px}.timeline-box{padding:20px 17px}.timeline{gap:4px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.section-head{align-items:center}.archive-tools .hint{display:none}.card-time{font-size:8px}.card-info{padding:12px}.card-info h3{font-size:10px}.await-card{min-height:165px;padding:15px;text-align:center}.await-card strong{font-size:10px}.await-card small{font-size:8px}.modal-actions{align-items:flex-start;gap:10px;flex-direction:column}.modal-links a{padding:8px}.modal-head{padding:16px}footer{align-items:flex-start;line-height:1.7}.enlarge{opacity:1}.hero .eyebrow{font-size:8px}.tooltip{width:290px}.timeline.week{grid-template-columns:repeat(28,minmax(0,1fr))}}
+.accounts-panel{margin:0 0 24px}
+.account-heading{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:12px}.account-heading h2{margin:0;font-size:16px}.account-heading span{color:#68786c;font-size:11px}
+.accounts{display:flex;gap:10px;flex-wrap:wrap}
+.account{display:flex;align-items:stretch;min-width:166px;max-width:100%;background:var(--paper);border:1px solid #dce3de;border-radius:10px;color:var(--ink)}
+.account.selected{border-color:#4a8264;background:#edf5ef;box-shadow:inset 0 0 0 1px #4a8264}
+.account-select{flex:1;min-width:0;display:grid;align-content:center;gap:4px;border:0;border-radius:9px;background:transparent;color:inherit;text-align:left;padding:10px 14px;overflow-wrap:anywhere}
+.account-select strong{font-size:14px}.account-select small{font-size:11px;color:#617168}
+.account.history{min-width:auto;margin-left:auto}.account.history strong{font-size:12px}
+.monitor-switch{display:grid;place-items:center;align-content:center;gap:3px;min-width:48px;min-height:44px;border:0;border-radius:9px;padding:6px 12px 6px 4px;background:transparent;color:#617168;font-size:10px;line-height:1.2;white-space:nowrap}
+.switch-track{position:relative;width:34px;height:20px;border:1px solid #89938d;border-radius:99px;background:#89938d}
+.switch-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:white;box-shadow:0 1px 2px #24332a33}
+.monitor-switch[aria-checked=true] .switch-track,.quiet-power input:checked+.switch-track{background:#367957;border-color:#367957}.monitor-switch[aria-checked=true] .switch-track::after,.quiet-power input:checked+.switch-track::after{transform:translateX(14px)}
+.monitor-switch[aria-disabled=true]{cursor:default;opacity:.6}
+@media(prefers-reduced-motion:no-preference){.switch-track{transition:background-color .15s,border-color .15s}.switch-track::after{transition:transform .15s}}
+.card-info .run-model{font:10px var(--mono);color:#68766f;margin:5px 0 0}.modal-links{flex-wrap:wrap}
+@media(max-width:620px){.account{min-width:0;flex:1 1 148px}.account.history{flex:none}.account-select{padding:9px 10px}.monitor-switch{padding-right:9px}.hero{margin-bottom:22px}}
+img[data-src]:not([src]){visibility:hidden}
+.modal-links button{border:1px solid #dce4df;border-radius:7px;background:#fff;color:#486450;padding:8px 11px;font:inherit;font-size:11px;cursor:pointer}
+.raw-answer{box-sizing:border-box;width:100%;margin:0;padding:18px 22px;max-height:58vh;min-height:160px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;align-self:stretch;background:#f6f8f7;color:#293731;font:12px/1.65 ui-monospace,monospace}
+.monitor-feedback{margin:8px 0 0;font-size:12px;color:#6a5540}.monitor-feedback:empty{display:none}
+.quiet-panel{
+    margin-top:16px;border:1px solid #dce3df;border-radius:16px;background:var(--paper);color:var(--ink);
+    font-size:13px;overflow:hidden;container-type:inline-size;
+}
+.quiet-panel summary{display:flex;align-items:center;gap:12px;padding:16px 22px;list-style:none;cursor:pointer}
+.quiet-panel summary::-webkit-details-marker{display:none}
+.quiet-panel summary:focus-visible{outline-offset:-4px}
+.quiet-panel summary strong{font-size:16px;font-weight:650;letter-spacing:-.3px}
+.quiet-panel summary::after,.time-pill::after{content:'';width:6px;height:6px;border:solid #72817a;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);flex:none}
+.quiet-panel[open] summary::after{transform:translateY(2px) rotate(225deg)}
+.quiet-zone,#quiet-summary{margin-left:auto;text-align:right;font-size:12px;color:#68776e}
+.quiet-panel[open] #quiet-summary,.quiet-panel:not([open]) .quiet-zone{display:none}
+#quiet-form,.quiet-panel fieldset{min-width:0;margin:0;padding:0;border:0}
+.settings-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);border-top:1px solid var(--line)}
+.settings-section{min-width:0;padding:18px 22px 20px}
+.settings-section+.settings-section{border-left:1px solid var(--line)}
+.section-top{display:flex;align-items:center;gap:10px}
+.section-top h3{margin:0;font-size:15px;letter-spacing:-.2px;font-weight:650}
+.section-icon{position:relative;flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px}
+.quiet-icon{background:#f0edfa;color:#7567b0}.calendar-icon{background:#eaf2ed;color:#49735a}
+.quiet-icon::before{content:'';width:13px;height:13px;border-radius:50%;box-shadow:-4px 2px 0 currentColor;transform:translate(2px,-2px) rotate(-15deg)}
+.calendar-icon::before{content:'';width:14px;height:13px;border:1.5px solid currentColor;border-radius:3px;background:linear-gradient(currentColor,currentColor) 0 3px/100% 1px no-repeat,radial-gradient(circle,currentColor 1px,transparent 1.2px) 1px 5px/4px 4px repeat-x}
+.calendar-icon::after{content:'';position:absolute;top:6px;width:7px;height:4px;border-inline:1.5px solid currentColor}
+.quiet-power{position:relative;display:grid;place-items:center;margin-left:auto;min-width:38px;min-height:34px;cursor:pointer}
+.quiet-power input{position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.quiet-power .switch-track{display:block}
+.quiet-panel :is(button,select):focus-visible,.quiet-power input:focus-visible+.switch-track,.mode-choice input:focus-visible+span{outline:2px solid #5e8771;outline-offset:2px}
+.settings-description,.settings-hint,.quiet-readonly{color:#67766c;font-size:12px;line-height:1.5}
+.settings-description{margin:5px 0 15px}.quiet-readonly{margin:0;padding:4px 22px 16px}
+.quiet-range{display:flex;align-items:flex-end;gap:12px}
+.field-label{display:block;color:#56655c;font-size:12px;line-height:1.4}
+.quiet-range .field-label,.rest-controls .field-label{margin-bottom:6px}
+.range-arrow{align-self:flex-end;height:36px;display:grid;place-items:center;color:#849189;font-size:17px}
+.time-pill{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:32px;padding:4px 12px;border:1px solid #d9e1db;border-radius:99px;background:#fff;color:#30483a;cursor:pointer;font:600 14px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;font-variant-numeric:tabular-nums}
+.quiet-range .time-pill{min-height:36px;min-width:92px;background:#f5f7f5;font-size:18px;font-weight:550}
+.time-pill::after{width:5px;height:5px;transform:translateY(-1px) rotate(45deg)}
+.time-pill:hover,.time-pill[aria-expanded=true]{background:#eaf2ed;border-color:#9cb7a4}
+.day-strip{margin-top:16px}
+.day-strip-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px;font-size:11px;color:#627068}
+.day-strip-head strong{font-weight:600;color:#625987}
+.day-track{position:relative;overflow:hidden;height:8px;border-radius:99px;background:#e7ebe8}
+.day-track span{position:absolute;height:100%;background:#9e93ce}
+.day-axis{display:flex;justify-content:space-between;color:#728077;font:10px/1.5 var(--mono);margin-top:4px}
+.day-strip[data-off=true] .day-track span{background:#bac1bd}.day-strip[data-off=true] strong{color:#6c756f}
+.rest-controls{display:flex;align-items:flex-end;gap:clamp(12px,2vw,28px);flex-wrap:wrap}
+.count-stepper,.mode-switch{display:inline-flex;align-items:center;border-radius:9px;background:#f1f4f2}
+.count-stepper{height:36px;padding:2px;border:1px solid #dde4de}
+.count-stepper button{border:0;border-radius:6px;background:transparent;color:#385c46;font:500 18px/1 -apple-system,sans-serif;min-width:29px;height:30px;cursor:pointer}
+.count-stepper button:hover{background:#e0e8e2}.count-stepper button:disabled{opacity:.35;cursor:default}
+#rest-count{appearance:none;-webkit-appearance:none;border:none;background:transparent;text-align:center;text-align-last:center;color:#2d3d32;font-family:inherit;font-size:13px;font-weight:600;min-width:39px;height:30px;padding:0 2px;cursor:pointer}
+.mode-switch{padding:3px;min-height:36px}
+.mode-choice{position:relative;cursor:pointer}.mode-choice input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.mode-choice span{display:block;padding:6px 10px;border-radius:6px;color:#54635a;font-size:12px;line-height:18px;white-space:nowrap}
+.mode-choice input:checked+span{background:#fff;color:#28593d;font-weight:650;box-shadow:0 1px 4px #1d322321}
+.sample-times{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px}
+.settings-hint{margin:12px 0 0}.settings-hint:empty,.sample-times[hidden],.sample-times button[hidden]{display:none}
+#rest-settings:disabled{opacity:.55}
+.settings-footer{display:flex;align-items:center;gap:12px;padding:10px 22px;background:#f8faf8;border-top:1px solid var(--line);min-height:51px}
+.settings-footer p{margin:0;font-size:12px;line-height:1.5;color:#596b5f}.settings-footer p:empty{display:none}
+.settings-footer:has(#quiet-feedback:not(:empty)) .footer-scope{display:none}
+.footer-scope{color:#68766d;font-size:12px}
+#quiet-save{flex:none;min-height:32px;margin-left:auto;padding:6px 15px;border:1px solid #cdd9d0;border-radius:8px;background:#fff;color:#3a5543;font:600 13px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer}
+#quiet-form[data-edited=true] #quiet-save{background:#316a4e;color:#fff;border-color:#316a4e}
+#quiet-save:hover{box-shadow:0 1px 4px #263f2f20}
+.sample-preview{margin:0;padding:9px 22px;font-size:12px;color:#42614c;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.sample-preview:empty{display:none}
+@media(pointer:coarse){
+    .count-stepper,.mode-switch{min-height:40px}.count-stepper button{min-width:34px;height:34px}
+    .mode-choice span{padding-block:8px}.quiet-power{min-width:44px}
+}
+@container (max-width:670px){
+    .settings-grid{grid-template-columns:1fr}.settings-section+.settings-section{border:0;border-top:1px solid var(--line)}
+    .settings-section{padding:14px 18px 16px}.quiet-panel summary{padding:14px 18px}
+    .quiet-zone{font-size:11px}.settings-footer,.sample-preview{padding-inline:18px}
+}
+#time-dial{
+    --wheel-step:36px;
+    position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(264px,calc(100vw - 24px));max-width:none;
+    max-height:calc(100dvh - 16px);padding:16px;border:1px solid rgba(29,48,39,.12);border-radius:20px;
+    background:#fff;color:#202b26;box-shadow:0 14px 42px -10px #1e332c3d,0 3px 10px -3px #1e332c1c;
+}
+#time-dial::backdrop{background:transparent;backdrop-filter:none}
+.dial-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:1px 3px 14px}
+.dial-head h3{font-size:16px;line-height:1.4;font-weight:650;margin:0}
+.dial-zone{font-size:11px;color:#69736d}
+.dial-face{
+    position:relative;isolation:isolate;display:grid;grid-template-columns:64px 10px 64px;place-content:center;
+    height:calc(5 * var(--wheel-step));border-radius:14px;background:#f6f7f6;
+}
+.dial-face::before{
+    content:'';position:absolute;z-index:-1;top:50%;left:50%;transform:translate(-50%,-50%);width:148px;
+    height:calc(var(--wheel-step) + 2px);border-radius:99px;background:#fff;
+    box-shadow:0 1px 4px #23392b12,0 0 0 1px #283f3109;
+}
+.dial-wheel{
+    height:calc(5 * var(--wheel-step));overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+    scroll-snap-type:y mandatory;scrollbar-width:none;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+    cursor:ns-resize;outline:none;color:#22312a;font:500 32px/1 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+    font-variant-numeric:tabular-nums;letter-spacing:-.035em;
+    mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 82%,transparent);
+}
+.dial-wheel::-webkit-scrollbar{display:none}
+.dial-wheel::before,.dial-wheel::after{content:'';display:block;height:calc(2 * var(--wheel-step))}
+.dial-wheel:focus-visible{color:#28593d;font-weight:650}
+.dial-wheel.dragging,.dial-wheel.rolling{scroll-snap-type:none}
+.dial-wheel.dragging{cursor:grabbing}
+.dial-row{display:flex;align-items:center;height:var(--wheel-step);scroll-snap-align:center}
+#dial-hours .dial-row{justify-content:flex-end;padding-right:7px}
+#dial-minutes .dial-row{justify-content:flex-start;padding-left:7px}
+.dial-row span{pointer-events:none}
+.dial-colon{align-self:center;text-align:center;color:#63746a;font:550 25px/1 -apple-system,BlinkMacSystemFont,sans-serif;transform:translateY(-2px)}
+.dial-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px}
+.dial-footer button{
+    min-height:34px;padding:6px 12px;border:0;border-radius:9px;background:transparent;color:#5b675f;
+    font-family:inherit;font-size:13px;line-height:1.4;font-weight:600;cursor:pointer;
+}
+#dial-done{min-width:78px;background:#2e6149;color:white}
+@media(hover:hover){#dial-cancel:hover{background:#f2f4f2}#dial-done:hover{background:#254f3c}}
+.dial-footer button:focus-visible,.time-pill:focus-visible{outline:2px solid #55866b;outline-offset:2px}
+@media(pointer:coarse){.time-pill,.quiet-power,#quiet-save,.dial-footer button{min-height:44px}}
+@media(max-height:340px){
+    #time-dial{padding:10px}.dial-face,.dial-wheel{height:calc(3 * var(--wheel-step))}
+    .dial-wheel::before,.dial-wheel::after{height:var(--wheel-step)}
+    .dial-head{padding-bottom:8px}.dial-footer{margin-top:8px}
+}
+</style>
+<!--monitor-control-->
+</head>
+<body>
+<header><nav><a class="brand" href="./" aria-label="鹈鹕巡检 首页"><img src="./pelican-icon.png" alt="">鹈鹕巡检<small>ACCOUNT MONITOR</small></a><div class="nav-right"><span>喜鹊 · 账号巡检</span><span class="pill" id="connection"><i class="dot pulse"></i>正在连接</span></div></nav></header>
+<main>
+<section class="hero"><div><div class="eyebrow">CODEX / ACCOUNT MONITOR</div><h1>鹈鹕<span>巡检</span></h1><p>按计划用同一句提示词逐号生成鹈鹕骑行动画。选择账号，查看最近输出和运行记录。</p></div><div class="clock"><div class="eyebrow">北京时间</div><div class="time" id="clock">--:--:--</div><div class="date" id="today">正在同步时间</div></div></section>
+<section class="accounts-panel" aria-labelledby="accounts-heading">
+<div class="account-heading"><h2 id="accounts-heading">Codex 官方账号</h2><span id="inventory"></span></div>
+<div class="accounts" id="accounts"></div><p class="monitor-feedback" id="monitor-feedback" role="status"></p>
+<details class="quiet-panel" open>
+<summary><strong>免打扰与休息日</strong><span class="quiet-zone">北京时间</span><span id="quiet-summary">读取中</span></summary>
+<div id="quiet-form" role="group" aria-label="巡检时间设置" hidden><fieldset id="quiet-fields">
+<div class="settings-grid">
+<section class="settings-section" aria-labelledby="quiet-heading">
+<div class="section-top"><i class="section-icon quiet-icon" aria-hidden="true"></i><h3 id="quiet-heading">每日免打扰</h3>
+<label class="quiet-power"><input id="quiet-enabled" type="checkbox" role="switch" aria-label="启用免打扰"><span class="switch-track" aria-hidden="true"></span></label></div>
+<p class="settings-description">在选定时段内暂停检测。</p>
+<div class="quiet-range"><div><span class="field-label" id="start-label">开始</span><button class="time-pill" id="quiet-start" type="button" aria-labelledby="start-label quiet-start" aria-haspopup="dialog" aria-controls="time-dial" aria-expanded="false">--:--</button></div>
+<span class="range-arrow" aria-hidden="true">→</span>
+<div><span class="field-label" id="end-label">结束</span><button class="time-pill" id="quiet-end" type="button" aria-labelledby="end-label quiet-end" aria-haspopup="dialog" aria-controls="time-dial" aria-expanded="false">--:--</button></div></div>
+<div id="day-strip" class="day-strip"><div class="day-strip-head"><strong id="quiet-duration"></strong></div><div class="day-track" aria-hidden="true"><span></span><span></span></div>
+<div class="day-axis" aria-hidden="true"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
+</section>
+<section class="settings-section" aria-labelledby="rest-heading">
+<div class="section-top"><i class="section-icon calendar-icon" aria-hidden="true"></i><h3 id="rest-heading">休息日抽样</h3>
+<label class="quiet-power"><input id="rest-enabled" type="checkbox" role="switch" aria-label="按中国工作日历抽样"><span class="switch-track" aria-hidden="true"></span></label></div>
+<p class="settings-description" id="calendar-caption">按中国工作日历执行，调休补班日照常检测。</p>
+<fieldset id="rest-settings" aria-labelledby="rest-heading"><div class="rest-controls">
+<div><label class="field-label" for="rest-count">每账号每天</label><div class="count-stepper"><button id="rest-less" type="button" aria-label="减少抽样次数">−</button><select id="rest-count" aria-label="休息日每账号检测次数"></select><button id="rest-more" type="button" aria-label="增加抽样次数">+</button></div></div>
+<div><span class="field-label" id="mode-label">时间分布</span><div class="mode-switch" role="radiogroup" aria-labelledby="mode-label">
+<label class="mode-choice"><input id="mode-even" type="radio" name="rest-mode" value="even" checked><span>均匀分布</span></label><label class="mode-choice"><input id="mode-custom" type="radio" name="rest-mode" value="custom"><span>自选时刻</span></label></div></div></div>
+<div id="rest-times" class="sample-times" aria-label="休息日抽样时刻" hidden></div><p id="rest-hint" class="settings-hint"></p></fieldset>
+</section></div>
+<div class="settings-footer"><span class="footer-scope">应用于全部账号</span><p id="quiet-feedback" role="status"></p><button type="button" id="quiet-save">保存设置</button></div>
+</fieldset></div><div id="quiet-readonly" class="quiet-readonly" hidden></div><p id="sample-preview" class="sample-preview"></p></details></section>
+<div class="error-bar hidden" id="notice" role="status"></div>
+<section class="stats" aria-label="生成统计"><div class="stat"><div class="stat-label">已保存输出 <span class="tiny-icon">▧</span></div><div class="stat-value" id="total">—</div><div class="stat-foot">当前账号累计</div></div><div class="stat"><div class="stat-label">保存成功率 <span class="tiny-icon">↗</span></div><div class="stat-value" id="rate">—</div><div class="stat-foot" id="rate-note">以已结束的实际任务计算</div></div><div class="stat"><div class="stat-label">距离下次生成 <span class="tiny-icon">◷</span></div><div class="stat-value purple" id="countdown">--:--</div><div class="stat-foot" id="next-time">正在读取喜鹊调度</div></div><div class="stat"><div class="stat-label">最近一次生成 <span class="tiny-icon">✦</span></div><div class="stat-value" id="last-time">—</div><div class="stat-foot" id="last-note">等待第一段骑行</div></div></section>
+<div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote">悬停色块查看小浮窗，点击即可放大。时间均为北京时间。<br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
+<section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">FIXED PROMPT</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
+<section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">INDEPENDENT RUNS</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
+<details class="prompt-details"><summary>查看检测使用的原始提示词</summary><p id="prompt"></p></details>
+<footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
+</main>
+<div id="tooltip" class="tooltip hidden" role="tooltip"></div>
+<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div><div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
+<dialog id="time-dial" aria-labelledby="dial-title">
+<div class="dial-head"><h3 id="dial-title">开始时间</h3><span class="dial-zone">北京时间</span></div>
+<div class="dial-face"><div class="dial-wheel" id="dial-hours" role="spinbutton" aria-label="小时" tabindex="0"></div><span class="dial-colon" aria-hidden="true">:</span><div class="dial-wheel" id="dial-minutes" role="spinbutton" aria-label="分钟" tabindex="0"></div></div>
+<div class="dial-footer"><button type="button" id="dial-cancel">取消</button><button type="button" id="dial-done">完成</button></div>
+</dialog>
+<!--snapshot-->
+<script>
+'use strict';
+const $=id=>document.getElementById(id), HOUR=3600000;
+const managementKey=document.querySelector('meta[name="monitor-control"]')?.content;
+let savingMonitoring=false, monitoringVersion=0;
+let quietEdited=false;
+let dataset=null, selected=location.hash.slice(1), state=null,range=24,limit=12,filter='all',fingerprint='',timerOffset=0,featureId=null,online=false,lastUpdated=0,slots=[];
+const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(t,options)=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',hour12:false,...options}).format(new Date(t));
+const hhmm=t=>fmt(t,{hour:'2-digit',minute:'2-digit'});
+const stamp=t=>fmt(t,{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+const label=s=>({success:'已保存',running:'生成中',failed:'生成失败',interrupted:'运行中断'}[s]||'未运行');
+const triggerLabel=r=>({pause:'关闭时检测',resume:'开启时检测',scheduled:'定时检测','rest-sample':'休息日抽样','manual-retry':'手动重试'}[r?.trigger]||'');
+const duration=r=>{if(!r?.finishedAt)return '—';const sec=Math.max(0,Math.round((Date.parse(r.finishedAt)-Date.parse(r.startedAt))/1000));return sec<60?sec+' 秒':Math.floor(sec/60)+' 分 '+sec%60+' 秒'};
+function currentTime(){return Date.now()+timerOffset}
+function renderClock(){
+    const now=currentTime();
+    $('clock').textContent=fmt(now,{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    $('today').textContent=fmt(now,{year:'numeric',month:'2-digit',day:'2-digit',weekday:'long'});
+    const due=state?.account?.nextDispatchAt;
+    let value='—', caption='等待调度时间';
+    if(selected==='history' || state?.account?.enabled===false){
+        caption='此分类不参与调度';
+    }else if(state?.scheduleStatus==='offline'){
+        value='离线'; caption='未收到喜鹊插件心跳';
+    }else if(state?.account?.monitoringPaused){
+        value='已暂停'; caption='已暂停此账号的定时检测';
+    }else if(state?.quietUntil>now){
+        value='免打扰'; caption='北京时间 '+hhmm(state.quietUntil)+' 结束';
+    }else if(state?.account?.pendingSwitchChecks && !due){
+        caption='开启时检测启动后安排下一次';
+    }else if(state?.account?.enabled && state.quietHours?.enabled && !due){
+        caption='免打扰时段外没有可用的随机分钟';
+    }else if(state?.scheduleStatus==='active' && Number.isFinite(due)){
+        const seconds=Math.ceil((due-now)/1000);
+        value=seconds>=3600 ? Math.floor(seconds/3600)+'小时'+Math.floor(seconds%3600/60)+'分'
+            : seconds>0 ? [Math.floor(seconds/60),seconds%60].map(n=>String(n).padStart(2,'0')).join(':') : '待触发';
+        caption='计划 '+(fmt(due,{day:'numeric',month:'numeric'})===fmt(now,{day:'numeric',month:'numeric'})?hhmm(due):stamp(due))+' 检测';
+    }
+    $('countdown').textContent=value;
+    $('next-time').textContent=caption;
+    if(lastUpdated&&online)$('updated').textContent=Math.max(0,Math.floor((Date.now()-lastUpdated)/1000))+' 秒前更新';
+}
+function renderTimeline(){if(!state)return;$('timeline-label').textContent=range===24?'最近 24 小时':'最近 7 天';$('range-start').textContent=range===24?'24 小时前':'7 天前';$('timeline').classList.toggle('week',range>24);const current=Math.floor(currentTime()/HOUR)*HOUR;slots=[];let html='';for(let i=0;i<range;i++){const start=current-(range-1-i)*HOUR;const runs=state.runs.filter(r=>Date.parse(r.startedAt)>=start&&Date.parse(r.startedAt)<start+HOUR);const run=runs.find(r=>r.status==='running')||runs[0];slots.push({start,run,runs});const latest=run&&run.id===state.runs[0]?.id;html+='<button type="button" class="segment '+(run?.status||'')+(latest?' latest':'')+(range>24?' week-item':'')+'" data-slot="'+i+'" aria-label="'+escapeHTML(stamp(start)+' '+label(run?.status))+'"></button>'}$('timeline').innerHTML=html;}
+function thumbnail(run){
+    const image=escapeHTML(run.thumbnail || run.svg);
+    const title=escapeHTML(run.title || '动画预览');
+    if(run.thumbnailVideo) return '<video muted playsinline loop preload="none" disablepictureinpicture aria-label="'+title+'" data-src="'+escapeHTML(run.thumbnailVideo)+'" data-image="'+image+'"></video>';
+    return '<img data-src="'+image+'" alt="'+title+'">';
+}
+const visiblePreviews=new Set();
+function syncPreview(el){
+    const playing=visiblePreviews.has(el) && !document.hidden && !$('modal').open;
+    if(el.tagName==='IMG'){
+        if(playing && !el.hasAttribute('src')) el.src=el.dataset.src;
+        if(!playing) el.removeAttribute('src');
+        return;
+    }
+    if(!playing){el.pause();return;}
+    if(!el.hasAttribute('src')) el.src=el.dataset.src;
+    el.muted=true;
+    el.play().catch(err=>{
+        if(err.name==='AbortError' || !el.isConnected || !visiblePreviews.has(el)) return;
+        const img=document.createElement('img');
+        img.alt=el.getAttribute('aria-label');
+        img.dataset.src=el.dataset.image;
+        el.replaceWith(img);
+    });
+}
+const visibility=new IntersectionObserver(entries=>{
+    for(const e of entries){
+        if(!e.target.isConnected) continue;
+        if(e.isIntersecting) visiblePreviews.add(e.target);
+        else visiblePreviews.delete(e.target);
+        syncPreview(e.target);
+    }
+});
+function watchPreviews(node,adding){
+    if(node.nodeType!==1) return;
+    const selector='img[data-src],video[data-src]';
+    const media=node.matches(selector)?[node]:node.querySelectorAll(selector);
+    for(const el of media){
+        if(adding) visibility.observe(el);
+        else { visibility.unobserve(el);visiblePreviews.delete(el);if(el.tagName==='VIDEO') el.pause(); }
+    }
+}
+const previewChanges=new MutationObserver(changes=>{
+    for(const change of changes){
+        change.removedNodes.forEach(n=>watchPreviews(n,false));
+        change.addedNodes.forEach(n=>watchPreviews(n,true));
+    }
+});
+for(const id of ['featured','gallery','tooltip']) previewChanges.observe($(id),{childList:true,subtree:true});
+function syncVisiblePreviews(){visiblePreviews.forEach(syncPreview);}
+document.addEventListener('visibilitychange',syncVisiblePreviews);
+new MutationObserver(syncVisiblePreviews).observe($('modal'),{attributes:true,attributeFilter:['open']});
+function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=String(items.length).padStart(2,'0')+' RECORDS';$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(r.stage||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(r.title)+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>等待下一次独立运行</strong><small>按此账号的计划检测</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>这个分类还没有记录</strong><small>新结果会自动显示在这里</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
+function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>份</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?'已结束 '+finished.length+' 次 · 保存 '+good.length+' 次':'以已结束的实际任务计算';$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+stamp(latest.startedAt).split(' ')[0]:'等待第一段骑行';$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),running.stage].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?'免打扰中':state.account?.pendingSwitchChecks?'开关检测待运行':state.account?.monitoringPaused?'检测已暂停':(latest?.status==='success'?'本次已保存，等待下次生成':latest?label(latest.status):'等待此账号输出');$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?'历史归档':!state.account?.enabled?'供应商账号未启用':state.account.monitoringPaused?'检测已暂停':state.scheduleStatus==='active'?(state.restSchedule?.enabled?state.calendarDay.label+(state.calendarDay.rest?' · 每账号 '+state.restSchedule.count+' 次':' · 约每小时一次'):'喜鹊插件 · 每小时随机分钟'):'喜鹊插件离线';$('prompt').textContent=state.prompt;document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">⤢ 点击放大</span>';$('featured-title').textContent=featured.title;$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||'历史输出')+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">等待此账号输出</div>';$('featured-title').textContent=running?'正在独立生成':'等待输出';$('featured-meta').textContent=state.model||'FIXED PROMPT'}renderTimeline();renderGallery();renderClock();}
+function renderNotice(){
+    let note='';
+    if(!online) note='暂时连不上监测网页，正在重连。';
+    else if(state.monitorError) note='插件调度异常 · '+state.monitorError;
+    else if(state.scheduleStatus==='offline') note='未收到喜鹊插件心跳。请检查喜鹊及「鹈鹕巡检」插件的运行状态。';
+    $('notice').textContent=note;
+    $('notice').classList.toggle('hidden',!note);
+}
+function selectAccount(){
+    const accounts=dataset.accounts, older=[...dataset.legacyRuns,...dataset.runs.filter(r=>!r.accountId)];
+    if(!accounts.some(a=>a.id===selected) && !(selected==='history' && older.length)){
+        selected=accounts.find(a=>a.id===dataset.defaultAccountId)?.id || accounts[0]?.id || 'history';
+    }
+    const account=accounts.find(a=>a.id===selected);
+    const plan=account?.restSampleMinutes;
+    $('sample-preview').textContent=plan?.length?account.name+' · '+fmt(dataset.restPreviewDay,{month:'numeric',day:'numeric',weekday:'short'})+' 抽样计划　'+plan.map(timeInput).join('、'):'';
+    if(state?.account?.monitoringPaused!==account?.monitoringPaused)$('monitor-feedback').textContent='';
+    state={...dataset,account,runs:selected==='history'?older.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)):dataset.runs.filter(r=>r.accountId===selected),legacyRuns:[]};
+    $('inventory').textContent=accounts.filter(a=>a.enabled && a.present && !a.monitoringPaused).length+' 个账号参与检测';
+    const active=document.activeElement;
+    const cards=accounts.map(a=>{
+        const runs=dataset.runs.filter(r=>r.accountId===a.id);
+        const status=!a.present?'已移除':!a.enabled?'已停用':dataset.quietUntil && !a.monitoringPaused?'免打扰中':a.pendingSwitchChecks?'开关检测待运行':a.monitoringPaused?'检测已暂停':runs.length?label(runs[0].status):'待首次检测';
+        return accountCard(a.id,a.name,status+' · '+runs.filter(r=>r.status==='success').length+' 份',a);
+    });
+    if(older.length)cards.push(accountCard('history','早期记录',older.length+' 次 · 未归属'));
+    $('accounts').innerHTML=cards.join('');
+    syncMonitoringSwitches();
+    const focusedId=active?.dataset.monitor || active?.dataset.account;
+    if(focusedId){
+        const attribute=active.dataset.monitor?'data-monitor':'data-account';
+        $('accounts').querySelector('['+attribute+'="'+CSS.escape(focusedId)+'"]')?.focus({preventScroll:true});
+    }
+    renderState();renderNotice();
+}
+function accountCard(id,name,detail,account){
+    const selectedCard=id===selected;
+    const selection='<button class="account-select" type="button" data-account="'+escapeHTML(id)+'" aria-pressed="'+selectedCard+'"><strong>'+escapeHTML(name)+'</strong><small>'+escapeHTML(detail)+'</small></button>';
+    let control='';
+    if(managementKey && account?.present){
+        const hint=(account.monitoringPaused?'恢复':'暂停')+name+'的定时检测';
+        control='<button type="button" role="switch" class="monitor-switch" data-monitor="'+escapeHTML(id)+'" aria-checked="'+!account.monitoringPaused+'" aria-label="'+escapeHTML(name+'的定时检测')+'" title="'+escapeHTML(hint)+'"><span class="switch-track" aria-hidden="true"></span><span aria-hidden="true">定时检测</span></button>';
+    }
+    return '<div class="account'+(selectedCard?' selected':'')+(id==='history'?' history':'')+'">'+selection+control+'</div>';
+}
+function syncMonitoringSwitches(){
+    $('quiet-fields').disabled=savingMonitoring || !online;
+    for(const button of $('accounts').querySelectorAll('[data-monitor]')){
+        button.setAttribute('aria-disabled',String(savingMonitoring || !online));
+    }
+}
+function timeInput(minutes){
+    return [Math.floor(minutes/60),minutes%60].map(v=>String(v).padStart(2,'0')).join(':');
+}
+const dial=$('time-dial');
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+let timeButton=null;
+function makeWheel(el,count,unit){
+    const rows=[];
+    for(let i=0;i<count*3;i++){
+        const row=document.createElement('div'),number=document.createElement('span');
+        row.className='dial-row';row.dataset.index=i;
+        row.setAttribute('aria-hidden','true');
+        number.textContent=String(i%count).padStart(2,'0');
+        row.append(number);el.append(row);rows.push(number);
+    }
+    el.setAttribute('aria-valuemin','0');el.setAttribute('aria-valuemax',String(count-1));
+    let step=0,settleTimer,drag=null,dragged=false,wheel=null,wheelFrame=0,visibleIndex=-1;
+    function position(){return Math.max(0,Math.min(rows.length-1,el.scrollTop/step));}
+    function paint(pos=position()){
+        const index=Math.round(pos);
+        if(visibleIndex!==index){
+            visibleIndex=index;
+            el.setAttribute('aria-valuenow',String(index%count));
+            el.setAttribute('aria-valuetext',rows[index].textContent+unit);
+        }
+        for(let i=Math.max(0,index-3);i<=Math.min(rows.length-1,index+3);i++){
+            const delta=i-pos,distance=Math.min(3,Math.abs(delta));
+            // Project each number onto the wheel as it moves away from the centre line.
+            const angle=Math.min(1.35,distance*.46);
+            const lift=(Math.sin(angle)/.46-distance)*Math.sign(delta)*step;
+            const opacity=1-Math.min(distance,1)*.43-Math.max(0,distance-1)*.19;
+            rows[i].style.opacity=String(opacity*Math.max(0,Math.min(1,2.65-distance)));
+            rows[i].style.transform='translateY('+lift+'px) scale('+ (1-distance*.05) +','+Math.cos(angle)+')';
+        }
+    }
+    function go(index){
+        const top=Math.round(index*step);
+        el.scrollTop=top;paint(top/step);
+    }
+    function stopWheel(){
+        if(!wheel)return;
+        cancelAnimationFrame(wheelFrame);
+        wheel=null;
+        el.classList.remove('rolling');
+    }
+    function advanceWheel(now){
+        const settled=now-wheel.lastInput>=130;
+        let target=wheel.target;
+        if(settled){
+            target=Math.round(target);
+            // Some mice report a single notch as only a few pixels.
+            const travel=wheel.target-wheel.origin;
+            if(target===wheel.origin && Math.abs(travel)>=.05)target+=Math.sign(travel);
+            wheel.origin=wheel.target=target;
+        }
+        const dt=Math.max(0,now-wheel.lastFrame);
+        wheel.lastFrame=now;
+        const fraction=reducedMotion.matches?1:1-Math.exp(-dt/46);
+        wheel.current+=(target-wheel.current)*fraction;
+        const finished=settled && Math.abs(target-wheel.current)<.01;
+        if(finished)wheel.current=target;
+        // Use the middle copy so a continuous gesture can pass midnight in either direction.
+        const offset=((wheel.current%count)+count)%count;
+        go(count+offset);
+        if(finished)stopWheel();
+        else wheelFrame=requestAnimationFrame(advanceWheel);
+    }
+    el.addEventListener('wheel',event=>{
+        const mode=event.deltaMode,delta=event.deltaY;
+        if(!step || !dial.open || drag || event.ctrlKey || !event.cancelable || !delta || Math.abs(event.deltaX)>Math.abs(delta))return;
+        event.preventDefault();
+        const now=performance.now();
+        if(!wheel){
+            const start=position();
+            clearTimeout(settleTimer);
+            el.classList.add('rolling');
+            wheel={origin:Math.round(start),current:start,target:start,lastFrame:now,lastInput:now};
+            wheelFrame=requestAnimationFrame(advanceWheel);
+        }
+        // Keep fine trackpad deltas and limit a coarse mouse event to one row.
+        const rowsDelta=mode===1?delta/3:mode===2?Math.sign(delta):delta/step;
+        wheel.target+=Math.max(-1,Math.min(1,rowsDelta));
+        wheel.lastInput=now;
+    },{passive:false});
+    el.addEventListener('scroll',()=>{
+        if(!dial.open || !step || wheel)return;
+        paint();clearTimeout(settleTimer);
+        // Keep a full turn on either side once native scrolling has snapped to a row.
+        settleTimer=setTimeout(()=>{
+            if(!dial.open || drag)return;
+            const pos=position(),i=Math.round(pos);
+            if(Math.abs(i-pos)<.03 && (i<count || i>=count*2))go(count+i%count);
+        },180);
+    },{passive:true});
+    el.addEventListener('keydown',event=>{
+        const value=Math.round(position())%count;
+        const target={ArrowUp:value-1,ArrowDown:value+1,PageUp:value-5,PageDown:value+5,Home:0,End:count-1}[event.key];
+        if(target===undefined)return;
+        event.preventDefault();stopWheel();go(count+(target+count)%count);
+    });
+    el.addEventListener('click',event=>{
+        const row=event.target.closest('.dial-row');
+        if(row && !dragged)go(Number(row.dataset.index));
+    });
+    el.addEventListener('pointerdown',event=>{
+        stopWheel();
+        dragged=false;
+        if(event.pointerType==='mouse' && event.button===0)drag={y:event.clientY,top:el.scrollTop,id:event.pointerId};
+    });
+    el.addEventListener('pointermove',event=>{
+        if(!drag || event.pointerId!==drag.id || !(event.buttons&1))return;
+        const dy=event.clientY-drag.y;
+        if(!dragged && Math.abs(dy)<4)return;
+        if(!dragged){dragged=true;el.setPointerCapture(drag.id);el.classList.add('dragging');}
+        el.scrollTop=drag.top-dy;
+    });
+    function endDrag(){
+        if(!drag)return;
+        drag=null;
+        if(dragged){const i=Math.round(position());el.classList.remove('dragging');go(i);}
+    }
+    el.addEventListener('pointerup',endDrag);
+    el.addEventListener('pointercancel',endDrag);
+    el.addEventListener('pointerleave',()=>{if(!dragged)drag=null;});
+    return {
+        set(value){
+            stopWheel();clearTimeout(settleTimer);drag=null;dragged=false;el.classList.remove('dragging');
+            step=rows[0].parentElement.offsetHeight;
+            go(count+value);
+        },
+        value(){return Math.round(position())%count;},
+        stopWheel
+    };
+}
+const dialHours=makeWheel($('dial-hours'),24,'时'),dialMinutes=makeWheel($('dial-minutes'),60,'分');
+function placeDial(){
+    if(!dial.open || !timeButton)return;
+    const rect=timeButton.getBoundingClientRect(),width=dial.offsetWidth,height=dial.offsetHeight;
+    const left=Math.max(8,Math.min(innerWidth-width-8,rect.left+(rect.width-width)/2));
+    const top=rect.bottom+height+14<=innerHeight?rect.bottom+6:rect.top-height-6;
+    dial.style.left=left+'px';
+    dial.style.top=Math.max(8,Math.min(top,innerHeight-height-8))+'px';
+}
+function bindTimePicker(button,title){
+    button.addEventListener('click',()=>{
+        const [h,m]=button.textContent.split(':').map(Number);
+        if(!Number.isInteger(h) || !Number.isInteger(m))return;
+        timeButton=button;button.setAttribute('aria-expanded','true');$('dial-title').textContent=title;
+        dial.showModal();placeDial();dialHours.set(h);dialMinutes.set(m);
+        $('dial-hours').focus({preventScroll:true});
+    });
+}
+bindTimePicker($('quiet-start'),'开始时间');bindTimePicker($('quiet-end'),'结束时间');
+const sampleButtons=[];
+for(let i=1;i<=8;i++){
+    $('rest-count').add(new Option(i+' 次',String(i)));
+    const b=document.createElement('button');
+    b.className='time-pill';b.type='button';b.setAttribute('aria-haspopup','dialog');
+    b.setAttribute('aria-controls','time-dial');b.setAttribute('aria-expanded','false');
+    b.id='sample-time-'+i;b.setAttribute('aria-label','第 '+i+' 次抽样');
+    $('rest-times').append(b);sampleButtons.push(b);bindTimePicker(b,'第 '+i+' 次抽样');
+}
+function minutesOf(text){const [h,m]=text.split(':').map(Number);return h*60+m;}
+function availableMinutes(){
+    const start=minutesOf($('quiet-start').textContent),end=minutesOf($('quiet-end').textContent);
+    return Array.from({length:1440},(_,m)=>m).filter(m=>!$('quiet-enabled').checked ||
+        (start<end?m<start || m>=end:m>=end && m<start));
+}
+function renderQuietBand(){
+    const start=minutesOf($('quiet-start').textContent),end=minutesOf($('quiet-end').textContent);
+    const active=$('quiet-enabled').checked;
+    const length=(end-start+1440)%1440, hours=Math.floor(length/60), minutes=length%60;
+    $('end-label').textContent=end<start?'次日结束':'结束';
+    $('day-strip').dataset.off=String(!active);
+    $('quiet-duration').textContent=(active?'免打扰':'启用后免打扰')+' '+(hours?hours+' 小时':'')+(minutes?' '+minutes+' 分钟':'')+(length?'':'0 分钟');
+    const spans=$('day-strip').querySelectorAll('.day-track span');
+    const ranges=end<start?[[0,end],[start,1440]]:[[start,end],[0,0]];
+    ranges.forEach(([a,b],i)=>{spans[i].style.left=a/14.4+'%';spans[i].style.width=(b-a)/14.4+'%';});
+}
+for(const [id,delta] of [['rest-less',-1],['rest-more',1]]){
+    $(id).addEventListener('click',()=>{
+        const count=$('rest-count');count.value=String(Math.max(1,Math.min(8,Number(count.value)+delta)));
+        count.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+}
+function updateRestForm(){
+    const count=Number($('rest-count').value),custom=$('mode-custom').checked;
+    $('rest-settings').disabled=!$('rest-enabled').checked;$('rest-times').hidden=!custom;
+    $('rest-hint').textContent=!$('rest-enabled').checked?'当前沿用工作日频率。':custom?'':'可检测时间等分为 '+count+' 段，每段抽样一次。';
+    $('rest-less').disabled=count<=1;$('rest-more').disabled=count>=8;
+    renderQuietBand();
+    const allowed=availableMinutes();
+    sampleButtons.forEach((b,i)=>{
+        b.hidden=i>=count;
+        if(i<count && (!b.textContent || b.dataset.suggested==='1') && allowed.length){b.textContent=timeInput(allowed[Math.floor((i+.5)*allowed.length/count)]);b.dataset.suggested='1';}
+    });
+}
+function closeDial(apply){
+    if(apply && timeButton){
+        const value=timeInput(dialHours.value()*60+dialMinutes.value());
+        if(timeButton.textContent!==value){timeButton.textContent=value;timeButton.dataset.suggested='0';updateRestForm();markQuietEdited();}
+    }
+    dialHours.stopWheel();dialMinutes.stopWheel();
+    timeButton?.setAttribute('aria-expanded','false');dial.close();timeButton=null;
+}
+$('dial-done').addEventListener('click',()=>closeDial(true));
+$('dial-cancel').addEventListener('click',()=>closeDial(false));
+dial.addEventListener('cancel',event=>{event.preventDefault();closeDial(false);});
+dial.addEventListener('click',event=>{
+    if(event.target!==dial)return;
+    const r=dial.getBoundingClientRect();
+    if(event.clientX<r.left || event.clientX>r.right || event.clientY<r.top || event.clientY>r.bottom)closeDial(false);
+});
+window.addEventListener('resize',placeDial);
+window.addEventListener('scroll',placeDial,{passive:true});
+let restFormKey='';
+function renderQuietSettings(data){
+    const q=data.quietHours;
+    if(!q)return;
+    $('quiet-summary').textContent=q.enabled?(data.quietUntil?'生效中 · ':'')+timeInput(q.start)+' – '+(q.end<q.start?'次日 ':'')+timeInput(q.end)+' · 北京时间':'未启用';
+    const r=data.restSchedule;
+    if(r?.enabled)$('quiet-summary').textContent+=' · '+data.calendarDay.label+' · 休息日 '+r.count+' 次'+(data.calendarDay.official?'':'（本年按周末推算）');
+    $('quiet-form').hidden=!managementKey;
+    $('quiet-readonly').hidden=Boolean(managementKey);
+    if(!managementKey)$('quiet-readonly').textContent=$('quiet-summary').textContent+'。可在喜鹊插件页或本机网页修改。';
+    $('calendar-caption').textContent=r?.enabled && !data.calendarDay.official?'本年日历尚未收录，暂按周六、周日抽样。':'按中国工作日历执行，调休补班日照常检测。';
+    if(!quietEdited){
+        $('quiet-enabled').checked=q.enabled;
+        $('quiet-start').textContent=timeInput(q.start);
+        $('quiet-end').textContent=timeInput(q.end);
+        const key=JSON.stringify([r,q]);
+        if(r && key!==restFormKey){
+            restFormKey=key;$('rest-enabled').checked=r.enabled;$('rest-count').value=String(r.count);
+            $('mode-'+r.distribution).checked=true;
+            sampleButtons.forEach((b,i)=>{b.textContent=r.times[i]===undefined?'':timeInput(r.times[i]);b.dataset.suggested=r.times[i]===undefined?'1':'0';});
+            updateRestForm();
+        }
+    }
+}
+function markQuietEdited(){quietEdited=true;$('quiet-form').dataset.edited='true';$('quiet-feedback').textContent='有未保存的更改';}
+$('quiet-form').addEventListener('change',()=>{updateRestForm();markQuietEdited();});
+$('quiet-save').addEventListener('click',async()=>{
+    if(!online || !managementKey || savingMonitoring)return;
+    const start=$('quiet-start').textContent, end=$('quiet-end').textContent;
+    if(start===end){$('quiet-feedback').textContent='请选择不同的开始和结束时间。';return;}
+    const rest={enabled:$('rest-enabled').checked,count:Number($('rest-count').value),distribution:$('mode-custom').checked?'custom':'even',times:[]};
+    const allowed=availableMinutes();
+    if(rest.enabled && allowed.length<rest.count){$('quiet-feedback').textContent='可检测的分钟数少于抽样次数，请调整免打扰或次数。';return;}
+    if(rest.distribution==='custom'){
+        rest.times=sampleButtons.slice(0,rest.count).map(b=>minutesOf(b.textContent));
+        if(new Set(rest.times).size!==rest.count){$('quiet-feedback').textContent='请为每次抽样选择不同的时刻。';return;}
+        if(rest.enabled && rest.times.some(m=>!allowed.includes(m))){$('quiet-feedback').textContent='有抽样时刻落在免打扰内，请调整时间。';return;}
+        rest.times.sort((a,b)=>a-b);
+    }
+    savingMonitoring=true;syncMonitoringSwitches();
+    try{
+        const response=await fetch('./api/quiet-hours',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
+            body:new URLSearchParams({key:managementKey,enabled:String($('quiet-enabled').checked),start,end,restSchedule:JSON.stringify(rest)})});
+        if(!response.ok)throw Error(response.status===403?'请刷新页面后重试。':'请核对时间后重试。');
+        const updated=await response.json();
+        quietEdited=false;delete $('quiet-form').dataset.edited;restFormKey='';monitoringVersion++;receive(updated);
+        $('quiet-feedback').textContent='设置已保存。';
+    }catch(error){$('quiet-feedback').textContent='保存失败。'+error.message;}
+    finally{savingMonitoring=false;syncMonitoringSwitches();}
+});
+async function toggleMonitoring(id){
+    const account=dataset?.accounts.find(a=>a.id===id);
+    if(!online || savingMonitoring || !account?.present || !managementKey)return;
+    savingMonitoring=true;syncMonitoringSwitches();
+    $('monitor-feedback').textContent='';
+    try{
+        const response=await fetch('./api/accounts/'+encodeURIComponent(account.id)+'/monitoring',{
+            method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
+            body:new URLSearchParams({key:managementKey,paused:String(!account.monitoringPaused)})
+        });
+        if(!response.ok)throw Error(response.status===403?'请刷新页面后重试。':'请稍后重试。');
+        const updated=await response.json();
+        monitoringVersion++;receive(updated);
+        $('monitor-feedback').textContent=!updated.monitoringChanged?'此账号已处于所选状态。':account.name+(account.monitoringPaused
+            ? (updated.quietUntil?' 已开启，免打扰结束后检测。':' 已开启，已提交一次开启时检测。')
+            : ' 已暂停检测。');
+    }catch(error){
+        $('monitor-feedback').textContent='未能确认 '+account.name+' 的检测设置。'+error.message;
+    }finally{savingMonitoring=false;syncMonitoringSwitches();}
+}
+$('accounts').addEventListener('click', e=>{
+    const control=e.target.closest('[data-monitor]');
+    if(control){toggleMonitoring(control.dataset.monitor);return;}
+    const id=e.target.closest('[data-account]')?.dataset.account;
+    if(id && id!==selected) location.hash=id;
+});
+window.addEventListener('hashchange',()=>{
+    $('monitor-feedback').textContent='';
+    selected=location.hash.slice(1);limit=12;filter='all';$('filter').value=filter;
+    if(dataset){hideTip();selectAccount();}
+});
+function receive(data){
+    dataset=data;
+    renderQuietSettings(data);
+    for(const r of [...data.runs,...data.legacyRuns]){
+        for(const k of ['svg','original','preview','thumbnail','thumbnailVideo','responseText']){
+            if(r[k]){
+                r[k]=r[k].replace(/^\//,'./');
+                if(r.sourceHtmlSha256 && ['svg','thumbnail','thumbnailVideo'].includes(k)) r[k]+='?v='+encodeURIComponent(r.sourceHtmlSha256);
+            }
+        }
+    }
+    timerOffset=Date.parse(data.serverTime)-Date.now();
+    lastUpdated=Date.now();online=true;
+    $('connection').innerHTML='<i class="dot pulse"></i>本地服务在线';
+    const key=JSON.stringify([data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay]);
+    if(key!==fingerprint){fingerprint=key;hideTip();selectAccount();}
+    renderNotice();renderClock();
+    if(initialSource){
+        const r=state.runs.find(run=>run.id===initialSource);
+        initialSource=null;
+        if(r?.responseText){openRun(r.id);showResponse(r);}
+    }
+}
+async function refresh(){
+    const version=monitoringVersion;
+    try{
+        const path='./api/status'+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):'');
+        const response=await fetch(path,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(4500)});
+        if(snapshot && response.status===403){ location.reload();return; }
+        if(!response.ok) throw new Error('读取失败');
+        const updated=await response.json();
+        if(version===monitoringVersion)receive(updated);
+    }catch{
+        online=false;$('connection').textContent='正在重连';$('updated').textContent='连接中断';renderNotice();
+    }finally{syncMonitoringSwitches();setTimeout(refresh,5000);}
+}
+function showTip(button){const slot=slots[Number(button.dataset.slot)];if(!slot)return;const r=slot.run;const tip=$('tooltip');tip.innerHTML=r?((r.svg?thumbnail(r):'<div class="empty-tip">'+escapeHTML(r.stage||label(r.status))+'</div>')+'<strong>'+escapeHTML(stamp(r.startedAt)+' · '+label(r.status))+'</strong><p>'+escapeHTML(r.svg?'点击放大，可下载 SVG 或原始 HTML。':r.note||'生成结果会自动出现在这里。')+'</p>'):'<div class="empty-tip">'+stamp(slot.start)+' · 未记录运行</div><p style="margin-top:7px">该时段没有生成结果。</p>';tip.classList.remove('hidden');const rect=button.getBoundingClientRect(),width=tip.offsetWidth,height=tip.offsetHeight;tip.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.left+rect.width/2-width/2))+'px';tip.style.top=(rect.top-height-13>=12?rect.top-height-13:Math.min(innerHeight-height-12,rect.bottom+13))+'px';}
+function hideTip(){$('tooltip').classList.add('hidden');$('tooltip').replaceChildren()}
+let initialSource=new URLSearchParams(location.search).get('source');
+let detailRunId=null;
+function backToDetails(){
+    openRun(detailRunId);
+    $('show-response')?.focus();
+}
+async function showResponse(r){
+    $('modal-title').textContent='模型原文';
+    const pre=document.createElement('pre');
+    pre.className='raw-answer';
+    pre.tabIndex=0;
+    pre.textContent='正在读取模型原文…';
+    $('modal-art').replaceChildren(pre);
+    $('modal-links').innerHTML='<button type="button" id="back-to-detail">返回运行详情</button>';
+    const back=$('back-to-detail');
+    back.onclick=backToDetails;
+    back.focus();
+    if(!snapshot){
+        const download=document.createElement('a');
+        download.href=r.responseText;
+        download.download='pelican-'+r.id+'.txt';
+        download.textContent='下载原文';
+        $('modal-links').append(download);
+    }
+    try{
+        const path=r.responseText+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):'');
+        const response=await fetch(path,{headers:{Accept:'text/plain'},cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        pre.textContent=(await response.text())||'本次回复没有文字内容。';
+    }catch(error){pre.textContent='读取模型原文失败（'+error.message+'）';}
+}
+$('modal').addEventListener('cancel',event=>{
+    if($('back-to-detail')){event.preventDefault();backToDetails();}
+});
+function openRun(id){
+    const r=state?.runs.find(x=>x.id===id);
+    if(!r)return;
+    detailRunId=r.id;
+    hideTip();
+    $('modal-title').textContent=r.title;
+    $('modal-time').textContent=(state.account?.name||'早期记录')+' · 开始 '+stamp(r.startedAt)+(r.finishedAt?' · 结束 '+stamp(r.finishedAt):'')+' · '+label(r.status);
+    $('modal-note').textContent=[r.source==='magpie'?'喜鹊插件':'Codex 旧任务',triggerLabel(r),r.model,r.reasoningEffort,duration(r)].filter(Boolean).join(' · ');
+    $('modal-art').innerHTML=r.original && r.status==='success'
+        ? '<iframe src="'+escapeHTML(r.original)+'" title="'+escapeHTML(r.title)+'" sandbox="allow-scripts"></iframe>'
+        : '<div class="modal-message">'+escapeHTML(r.note||r.stage)+'</div>';
+    const links=[];
+    if(r.original && !document.getElementById('snapshot'))links.push('<a href="'+escapeHTML(r.original)+'" target="_blank" rel="noopener noreferrer">打开原始 HTML ↗</a>');
+    if(r.original)links.push('<a href="'+escapeHTML(r.original)+'" download="pelican-'+r.id+'.html">下载 HTML</a>');
+    if(r.responseText)links.push('<button type="button" id="show-response">模型原文</button>');
+    if(r.svg)links.push('<a class="primary" href="'+escapeHTML(r.svg)+'" download="pelican-'+r.id+'.svg">下载 SVG ↓</a>');
+    $('modal-links').innerHTML=links.join('');
+    if(r.responseText)$('show-response').onclick=()=>showResponse(r);
+    if(!$('modal').open)$('modal').showModal();
+}
+$('timeline').addEventListener('pointerover',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('pointerleave',hideTip);$('timeline').addEventListener('focusin',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('focusout',hideTip);$('timeline').addEventListener('click',e=>{const el=e.target.closest('[data-slot]');const r=el&&slots[Number(el.dataset.slot)]?.run;if(r)openRun(r.id)});window.addEventListener('scroll',hideTip,{passive:true});window.addEventListener('resize',hideTip);
+document.querySelectorAll('[data-hours]').forEach(b=>b.addEventListener('click',()=>{range=Number(b.dataset.hours);document.querySelectorAll('[data-hours]').forEach(x=>x.classList.toggle('active',x===b));hideTip();renderTimeline()}));$('gallery').addEventListener('click',e=>{const el=e.target.closest('[data-run]');if(el)openRun(el.dataset.run)});$('featured').addEventListener('click',()=>openRun(featureId));$('view-featured').addEventListener('click',()=>openRun(featureId));$('filter').addEventListener('change',e=>{filter=e.target.value;limit=12;if(state)renderGallery()});$('load-more').addEventListener('click',()=>{limit+=12;renderGallery()});$('close-modal').addEventListener('click',()=>$('modal').close());$('modal').addEventListener('click',e=>{if(e.target===$('modal')){const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('modal').close()}});$('modal').addEventListener('close',()=>{$('modal-art').innerHTML=''});document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderClock()});setInterval(renderClock,1000);renderClock();
+const snapshot=$('snapshot');
+if(snapshot) receive(JSON.parse(snapshot.textContent));
+refresh();
+</script>
+</body></html>
