@@ -38,7 +38,7 @@ magpie plugin add npm:magpie-pelican-hour
 
 外掛程式透過 Magpie 的本機閘道指定帳號，將 `input.txt` 的固定提示詞傳送給 `gpt-6.2-astra`，推理強度為 `xhigh`，最多可同時檢測 3 個帳號。在執行詳情中可查看原始回覆、HTML、擷取的 SVG 和作品預覽。閱畢模型回覆後，可返回同一筆紀錄。完整 HTML 包在 JSON 字串內時會先解碼再擷取。
 
-在 macOS 上，外掛程式會使用 Chrome 和 FFmpeg 為含指令碼的作品錄製每秒 60 格的無聲影片；限制自動播放的瀏覽器則使用每秒 30 格的動畫 PNG。預覽會在出現在畫面中時播放。即使缺少錄製工具，也會儲存 HTML、SVG 和預覽頁。
+縮圖進入畫面時會播放動畫。沒有錄影檔時，圖庫會在隔離的縮圖中播放已儲存的 HTML 預覽，舊作品也適用。若找到 Chrome 或 Chromium 以及 FFmpeg，外掛程式會為含指令碼的作品錄製每秒 60 格的無聲影片，並為限制自動播放的瀏覽器儲存每秒 30 格的動畫 PNG。可透過 `CHROME_PATH` 和 `FFMPEG_PATH` 指定執行檔的位置。
 
 監測頁使用連接埠 18765。區域網路中可連線至此連接埠的裝置能檢視帳號別名、執行紀錄和作品。設定在本機上變更，登入憑證由 Magpie 管理。macOS 的預設儲存位置是 `~/Library/Application Support/magpie-pelican/`；若已設定 `XDG_DATA_HOME`，則使用 `$XDG_DATA_HOME/magpie-pelican/`。備份或移轉時可複製整個資料夾，更改帳號別名後紀錄仍對應到原來的帳號識別碼。
 

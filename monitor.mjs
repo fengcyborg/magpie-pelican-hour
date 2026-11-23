@@ -8,6 +8,7 @@ import { promisify } from 'node:util';
 import { effort, extractArtwork, hour, inputSha256, model, prompt, quietWindow, sha256 } from './archive.mjs';
 
 import { minute } from './rest-days.mjs';
+import { findRecordingTools } from './thumbnail-tools.mjs';
 
 const run = promisify(execFile);
 const qualifiedModel = 'codex/' + model;
@@ -159,14 +160,16 @@ async function probe(archive, gateway, entry, now, check, signal) {
     writeFileSync(join(folder, 'artwork.svg'), svg + '\n', { mode: 0o600 });
     writeFileSync(join(folder, 'preview.html'), preview, { mode: 0o600 });
     if (/<script\b|\sonload\s*=/i.test(document)) {
-      try {
-        const recorder = fileURLToPath(new URL('./render-thumbnail.mjs', import.meta.url));
-        await run(process.execPath, [recorder, folder], { timeout: 120000 });
-        meta.thumbnailVideo = url + '/thumbnail.mp4';
-        meta.thumbnail = url + '/thumbnail.png';
-      } catch {
-        // The SVG and full interactive original remain available when recording is unavailable.
-        console.error('[鹈鹕巡检] 缩略动画未生成', id);
+      const tools = findRecordingTools();
+      if (tools) {
+        try {
+          const recorder = fileURLToPath(new URL('./render-thumbnail.mjs', import.meta.url));
+          await run(process.execPath, [recorder, folder, tools.chrome, tools.ffmpeg], { timeout: 120000 });
+          meta.thumbnailVideo = url + '/thumbnail.mp4';
+          meta.thumbnail = url + '/thumbnail.png';
+        } catch {
+          console.error('[鹈鹕巡检] 缩略动画未生成', id);
+        }
       }
     }
     Object.assign(meta, { svg: url + '/artwork.svg', preview: url + '/preview.html', bytes: Buffer.byteLength(svg),

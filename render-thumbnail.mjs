@@ -5,9 +5,13 @@ import { once } from 'node:events';
 import { readFile, mkdtemp, rm, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { findRecordingTools } from './thumbnail-tools.mjs';
 const execute = promisify(execFile);
 
-const folder = process.argv[2];
+const [, , folder, browserArg, encoderArg] = process.argv;
+const tools = browserArg && encoderArg ? { chrome: browserArg, ffmpeg: encoderArg } : findRecordingTools();
+if (!tools) throw Error('录制缩略图需要 Chrome 或 Chromium 以及 FFmpeg');
+const { chrome: chromePath, ffmpeg } = tools;
 const source = await readFile(join(folder, 'preview.html'));
 const profile = await mkdtemp(join(tmpdir(), 'pelican-preview-'));
 const stem = join(folder, '.thumbnail-' + process.pid);
@@ -17,7 +21,7 @@ const fallback = stem + '.png';
 const frameRate = 60;
 const frameCount = frameRate * 6;
 const url = 'https://preview.invalid/art';
-const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', [
+const chrome = spawn(chromePath, [
     '--headless', '--no-first-run', '--no-default-browser-check', '--disable-background-networking',
     '--disable-extensions', '--remote-debugging-pipe', '--user-data-dir=' + profile, 'about:blank'
 ], { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
@@ -103,7 +107,6 @@ try {
     await send('Fetch.enable', { patterns: [{ urlPattern: '*' }] });
     await send('Page.navigate', { url });
     await loaded;
-    const ffmpeg = '/opt/homebrew/bin/ffmpeg';
     encoder = spawn(ffmpeg, ['-v','error','-y','-f','image2pipe','-framerate',String(frameRate),
         '-i','pipe:0','-an','-c:v','libx264','-preset','veryfast','-crf','19','-pix_fmt','yuv420p',
         '-bf','0','-threads','2',capture], { stdio:['pipe','ignore','inherit'] });

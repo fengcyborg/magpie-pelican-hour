@@ -38,7 +38,7 @@ Calendars are available offline. Mainland China uses the published holiday and m
 
 Magpie’s local gateway sends the fixed prompt from `input.txt` to `gpt-6.2-astra` with `xhigh` reasoning. Up to three accounts can run at once. Open a run to see the original reply, HTML, extracted SVG and preview. **Back to run details** returns from the raw response. The extractor also handles a complete HTML document inside a JSON string.
 
-On macOS, Chrome and FFmpeg record silent 60 fps video previews for scripted artwork, with 30 fps animated PNGs for browsers that restrict autoplay. Previews play when visible. The HTML, SVG and preview page are saved even when recording tools are unavailable.
+Thumbnails play when visible. When a recording is unavailable, the gallery plays the saved HTML preview in a sandbox, including for older artwork. If the plugin finds Chrome or Chromium and FFmpeg, it records silent 60 fps previews for scripted artwork and saves 30 fps animated PNGs for browsers that restrict autoplay. Set `CHROME_PATH` and `FFMPEG_PATH` to the executables for custom installations.
 
 The plugin serves the dashboard on port 18765. Devices that can reach this port on the LAN can read account aliases, run records and outputs. Settings can be changed on the host. Magpie manages login credentials. On macOS, archives are stored in `~/Library/Application Support/magpie-pelican/`, or in `$XDG_DATA_HOME/magpie-pelican/` if configured. Copy the entire directory to back up or migrate the archive. Renaming an account keeps its records under its stable ID.
 
