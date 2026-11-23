@@ -5,9 +5,9 @@ import { request } from 'node:http';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { effort, extractArtwork, hour, inputSha256, model, prompt, quietWindow, sha256 } from './archive.mjs';
+import { effort, extractArtwork, generationInput, hour, model, quietWindow, sha256 } from './archive.mjs';
 
-import { minute } from './rest-days.mjs';
+import { hostLocale, minute } from './rest-days.mjs';
 import { findRecordingTools } from './thumbnail-tools.mjs';
 
 const run = promisify(execFile);
@@ -54,9 +54,9 @@ function safeReason(value) {
     .replace(/Bearer\s+\S+|sk-[\w-]+|eyJ[\w.-]+/gi, '[隐藏]').slice(0, 240);
 }
 
-export function requestGeneration(gateway, login, runId, signal) {
+export function requestGeneration(gateway, login, runId, signal, inputPrompt = generationInput(hostLocale()).inputPrompt) {
   const url = localEndpoint(gateway.addr);
-  const body = Buffer.from(JSON.stringify({ model: qualifiedModel, reasoning: { effort }, input: prompt,
+  const body = Buffer.from(JSON.stringify({ model: qualifiedModel, reasoning: { effort }, input: inputPrompt,
     store: false, stream: false }));
   return new Promise((resolve, reject) => {
     const timeout = AbortSignal.timeout(20 * 60000);
@@ -136,14 +136,14 @@ async function probe(archive, gateway, entry, now, check, signal) {
   const folder = join(archive.root, url.slice(1));
   const path = join(folder, 'run.json');
   const meta = { id, accountId: account.id, source: 'magpie', experimentMode: 'independent',
-    title: '鹈鹕骑自行车', status: 'running', stage: '喜鹊正在请求模型',
+    ...archive.currentInput(true), status: 'running', stage: '喜鹊正在请求模型',
     startedAt: new Date(now).toISOString(), finishedAt: null, slot, model, reasoningEffort: effort,
     trigger: check?.trigger || 'scheduled', requestedAt: check?.requestedAt,
-    inputPrompt: prompt, inputSha256, note: '' };
+    note: '' };
   archive.saveRun(path, meta);
   try {
     if (!account.present || !account.enabled) throw new Error(account.present ? '供应商账号已停用，无法发起检测' : '供应商账号已移除，无法发起检测');
-    const reply = await requestGeneration(gateway, login, id, signal);
+    const reply = await requestGeneration(gateway, login, id, signal, meta.inputPrompt);
     signal.throwIfAborted();
     const answer = (reply.output || []).filter(item => item.type === 'message').flatMap(item =>
       (item.content || []).filter(part => part.type === 'output_text').map(part => part.text)).join('\n');

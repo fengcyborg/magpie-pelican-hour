@@ -16,7 +16,7 @@ Aktiviere das Plugin und lass Magpie auf einem wachen Rechner laufen. Jede Prüf
 
 ## Sprache und Anleitung
 
-Beim ersten Öffnen gilt die Systemsprache. Oben rechts kannst du vereinfachtes oder traditionelles Chinesisch, Englisch, Japanisch oder Deutsch wählen. Mit **Systemsprache** kehrst du zur automatischen Auswahl zurück. Für nicht unterstützte Sprachen erscheint vereinfachtes Chinesisch. Der Titel des Dashboards und die Anleitung folgen dieser Auswahl. Für die Seitenleiste und die Plugin-Details gilt die Sprache von Magpie. Die Galerie zeigt übersetzte Werktitel und den Test-Prompt in der gewählten Sprache. Den tatsächlich gesendeten Text kannst du unter dem Prompt öffnen, den Originaltitel in den Laufdetails. Fehlt eine Übersetzung, erscheint ein Titel mit Datum und Uhrzeit. Kontonamen, Modellantworten und Werkdateien behalten ihren ursprünglichen Inhalt.
+Mit **Systemsprache** liest das Plugin zu Beginn jedes Prüflaufs die Sprache des Rechners, auf dem Magpie läuft. Im lokalen Dashboard kannst du auch vereinfachtes oder traditionelles Chinesisch, Englisch, Japanisch oder Deutsch wählen. Bei nicht unterstützten Sprachen verwendet das Plugin vereinfachtes Chinesisch. Es sendet den Prompt in der gewählten Sprache und fordert das Modell auf, sie für die Antwort, den Werktitel, sichtbare Texte und Beschreibungen für die Barrierefreiheit zu verwenden. In den Laufdetails findest du den tatsächlich gesendeten Prompt und die ursprüngliche Antwort. Eine Sprachänderung gilt ab dem nächsten Lauf. Für die Seitenleiste und die Plugin-Details gilt die Sprache von Magpie.
 
 ## Zeitplan und Ruhezeiten
 
@@ -36,7 +36,7 @@ Die Kalender funktionieren offline. Für Festlandchina gelten die veröffentlich
 
 ## Prüfungen, Vorschau und Speicherort
 
-Das lokale Magpie-Gateway sendet den festen Prompt aus `input.txt` für das jeweilige Konto an `gpt-6.2-astra` mit der Denkstufe `xhigh`. Bis zu drei Konten können gleichzeitig laufen. Die Laufdetails enthalten die ursprüngliche Antwort, das HTML-Dokument, die extrahierte SVG-Datei und die Vorschau. Aus der Modellantwort führt **Zurück zu den Laufdetails** wieder zum Eintrag. Auch ein vollständiges HTML-Dokument in einer JSON-Zeichenkette wird erkannt.
+Das lokale Magpie-Gateway sendet die feste Aufgabe in der Sprache des Prüflaufs für das jeweilige Konto an `gpt-6.2-astra` mit der Denkstufe `xhigh`. Bis zu drei Konten können gleichzeitig laufen. Die Laufdetails enthalten die ursprüngliche Antwort, das HTML-Dokument, die extrahierte SVG-Datei und die Vorschau. Aus der Modellantwort führt **Zurück zu den Laufdetails** wieder zum Eintrag. Auch ein vollständiges HTML-Dokument in einer JSON-Zeichenkette wird erkannt.
 
 Die Vorschau startet, sobald das Vorschaubild sichtbar ist. Fehlt eine Aufnahme, spielt die Galerie die gespeicherte HTML-Vorschau in einer Sandbox ab. Das gilt auch für ältere Werke. Findet das Plugin Chrome oder Chromium und FFmpeg, zeichnet es Werke mit Skripten als stumme Videos mit 60 Bildern pro Sekunde auf. Für Browser mit eingeschränkter automatischer Wiedergabe speichert es animierte PNGs mit 30 Bildern pro Sekunde. Eigene Programmpfade lassen sich über `CHROME_PATH` und `FFMPEG_PATH` festlegen.
 

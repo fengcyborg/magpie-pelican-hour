@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFile
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
-import { minute, midnight, localMinute, dateKey, dayType, defaultCalendar, validCalendar, hostLanguage, languageRegion, regions, sampleMinutes, defaultRestSchedule, validRestSchedule } from './rest-days.mjs';
+import { minute, midnight, localMinute, dateKey, dayType, defaultCalendar, validCalendar, hostLanguage, hostLocale, languageRegion, regions, sampleMinutes, defaultRestSchedule, validRestSchedule } from './rest-days.mjs';
 
 export const hour = 3600000;
 const defaultQuietHours = Object.freeze({ enabled: false, start: 23 * 60, end: 7 * 60 });
@@ -64,6 +64,25 @@ export const inputSha256 = sha256(prompt);
 if (inputSha256 !== 'b916e0387805188bb37af03d537c4fa30e571efaeecf70a62cde653ca0fb1866') {
   throw new Error('插件固定提示词校验失败');
 }
+const promptTexts = JSON.parse(readFileSync(new URL('./gallery/messages.json', import.meta.url), 'utf8'))[prompt];
+const defaultTitles = JSON.parse(readFileSync(new URL('./gallery/artwork-titles.json', import.meta.url), 'utf8'))['鹈鹕骑自行车'];
+const outputInstructions = {
+  'zh-CN': '请直接用简体中文回复。HTML 标题、作品中的可见文字和无障碍说明也请使用简体中文。',
+  'zh-TW': '請直接以繁體中文回覆。HTML 標題、作品中可見的文字及無障礙說明也請使用繁體中文。',
+  en: 'Write your response in English, including the HTML title, visible text and accessibility descriptions in the artwork.',
+  ja: '回答は日本語で書いてください。HTML のタイトル、作品内に表示する文章、アクセシビリティ用の説明にも日本語を使ってください。',
+  de: 'Antworte auf Deutsch. Verwende Deutsch auch für den HTML-Titel, sichtbare Texte und Beschreibungen für die Barrierefreiheit.'
+};
+
+export function generationInput(tag) {
+  const locale = new Intl.Locale(tag);
+  const language = locale.language === 'zh'
+    ? (locale.maximize().script === 'Hant' ? 'zh-TW' : 'zh-CN') : locale.language;
+  const inputLanguage = Object.hasOwn(outputInstructions, language) ? language : 'zh-CN';
+  const task = inputLanguage === 'zh-CN' ? prompt : promptTexts[inputLanguage];
+  const inputPrompt = task + '\n\n' + outputInstructions[inputLanguage];
+  return { inputLanguage, inputPrompt, inputSha256: sha256(inputPrompt), title: defaultTitles[inputLanguage] };
+}
 
 export function dataDirectory() {
   const parent = process.env.XDG_DATA_HOME || (process.platform === 'darwin'
@@ -88,12 +107,14 @@ function directories(root) {
 }
 
 const publicFields = ['id', 'accountId', 'source', 'title', 'status', 'stage', 'startedAt', 'finishedAt', 'note',
-  'experimentMode', 'inputSha256', 'model', 'reasoningEffort', 'original', 'preview', 'svg', 'bytes',
+  'experimentMode', 'inputLanguage', 'inputPrompt', 'inputSha256', 'model', 'reasoningEffort', 'original', 'preview', 'svg', 'bytes',
   'responseText', 'thumbnail', 'thumbnailVideo', 'sourceHtmlSha256', 'trigger', 'requestedAt'];
 
 export class Archive {
-  constructor(root) {
+  constructor(root, readHostLocale = hostLocale) {
     this.root = root;
+    this.readHostLocale = readHostLocale;
+    this.systemLocale = readHostLocale();
     mkdirSync(root, { recursive: true, mode: 0o700 });
     this.info = readJSON(join(root, 'monitor.json'), { accounts: [] });
     try {
@@ -148,6 +169,13 @@ export class Archive {
     return this.info.restSchedule || defaultRestSchedule;
   }
 
+  currentInput(refreshSystem = false) {
+    const preference = this.info.language;
+    if (preference && preference !== 'system') return generationInput(preference);
+    if (refreshSystem) this.systemLocale = this.readHostLocale();
+    return generationInput(this.systemLocale);
+  }
+
   autoRegion(info = this.info) {
     const systemChanged = (!info.language || info.language === 'system') && info.languageHost !== hostLanguage;
     return languageRegion(systemChanged ? hostLanguage : info.calendarLocale || hostLanguage);
@@ -163,6 +191,7 @@ export class Archive {
   }
 
   setLanguage(language, tag, now = Date.now()) {
+    if (language === 'system') this.systemLocale = this.readHostLocale();
     if (this.info.language === language && this.info.calendarLocale === tag && this.info.languageHost === hostLanguage) return;
     const changes = { language, calendarLocale: tag, languageHost: hostLanguage };
     if (this.restSchedule.enabled && this.calendarRegion() !== this.calendarRegion({ ...this.info, ...changes })) {
@@ -337,7 +366,8 @@ export class Archive {
       a.name.localeCompare(b.name, 'zh-CN'));
     const scheduled = ordered.map(a => a.nextDispatchAt).filter(Number.isFinite);
     const window = quietWindow(this.quietHours, now);
-    return { name: '鹈鹕巡检', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, prompt, model, reasoningEffort: effort,
+    const input = this.currentInput();
+    return { name: '鹈鹕巡检', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, prompt: input.inputPrompt, inputLanguage: input.inputLanguage, model, reasoningEffort: effort,
       runtime: 'magpie-plugin', intervalMinutes: rest.enabled && today.rest ? null : 60, scheduleStatus: 'active', defaultAccountId, accounts: ordered,
       restSchedule: rest, calendar: this.info.calendar || defaultCalendar, calendarRegion: this.calendarRegion(), autoRegion: this.autoRegion(), regions, todayKey: dateKey(now), calendarDay: today, restPreviewDay: previewDay,
       quietHours: this.quietHours, quietUntil: window && now >= window.start ? window.end : null,

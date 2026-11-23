@@ -1,6 +1,6 @@
 {
   "name": "magpie-pelican-hour",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "type": "module",
   "main": "./index.mjs",
   "description": "Pelican Monitor for Magpie · 鹈鹕巡检 — scheduled Codex account checks with per-account run history and an animation gallery.",

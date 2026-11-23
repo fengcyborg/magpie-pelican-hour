@@ -187,7 +187,8 @@
 .user-guide article p{margin:.75em 0}.user-guide article a{color:#326b50;text-decoration:underline}
 .user-guide pre{overflow-x:auto;background:#f5f7f5;padding:10px 14px;border-radius:7px;white-space:pre}
 #original-title{margin-top:6px;color:#647269;font-size:11px}#original-title summary,.prompt-details summary{cursor:pointer;color:#56685c}
-#original-title p{margin-top:4px;overflow-wrap:anywhere;font:inherit}.prompt-details #prompt,.prompt-details #prompt-source-text{color:#425247}
+#original-title p{margin-top:4px;overflow-wrap:anywhere;font:inherit}.prompt-details #prompt,#run-prompt p{color:#425247;white-space:pre-wrap;overflow-wrap:anywhere}
+#run-prompt{margin:0 22px 12px;color:#647269;font-size:11px}#run-prompt summary{cursor:pointer}
 </style>
 <!--monitor-control-->
 <!--local-language-->
@@ -236,12 +237,14 @@
 <div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote"><span id="timeline-help"></span><br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
 <section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">固定提示词</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
 <section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
-<details class="prompt-details"><summary>检测使用的提示词</summary><p id="prompt"></p><details id="prompt-source" hidden><summary>查看发送的原文</summary><p id="prompt-source-text" lang="zh-CN"></p></details></details>
+<details class="prompt-details"><summary>检测使用的提示词</summary><p id="prompt" dir="auto"></p></details>
 <details class="user-guide" id="user-guide"><summary>使用说明</summary><article id="guide-content"></article></details>
 <footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
 </main>
 <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
-<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p><details id="original-title" hidden><summary>原始作品标题</summary><p id="original-title-text" dir="auto"></p></details></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div><div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
+<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p><details id="original-title" hidden><summary>原始作品标题</summary><p id="original-title-text" dir="auto"></p></details></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div>
+<details id="run-prompt" hidden><summary>检测使用的提示词</summary><p id="run-prompt-text" dir="auto"></p></details>
+<div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
 <dialog id="time-dial" aria-labelledby="dial-title">
 <div class="dial-head"><h3 id="dial-title">开始时间</h3><span class="dial-zone" data-zone>北京时间</span></div>
 <div class="dial-face"><div class="dial-wheel" id="dial-hours" role="spinbutton" aria-label="小时" tabindex="0"></div><span class="dial-colon" aria-hidden="true">:</span><div class="dial-wheel" id="dial-minutes" role="spinbutton" aria-label="分钟" tabindex="0"></div></div>
@@ -309,6 +312,7 @@ function renderTimeline(){if(!state)return;$('timeline-label').textContent=range
 const artworkTitles=JSON.parse($('artwork-titles').textContent);
 function displayTitle(run){
     const raw=run.title || '';
+    if(run.inputLanguage && raw) return raw;
     const archived=run.localizedTitles?.[locale];
     if(typeof archived==='string' && archived) return archived;
     const parts=raw.split(/\s*[·•]\s*/u);
@@ -318,11 +322,8 @@ function displayTitle(run){
     return t('作品 · {time}',{time:stamp(run.startedAt)});
 }
 function renderPrompt(){
-    const original=state.prompt || '';
-    const displayed=t(original);
-    $('prompt').textContent=displayed;
-    $('prompt-source').hidden=displayed===original;
-    $('prompt-source-text').textContent=original;
+    $('prompt').textContent=state.prompt || '';
+    $('prompt').lang=state.inputLanguage || '';
 }
 function thumbnail(run){
     return '<span class="thumbnail" role="img" aria-label="'+escapeHTML(displayTitle(run))+
@@ -771,7 +772,7 @@ function receive(data){
     timerOffset=Date.parse(data.serverTime)-Date.now();
     lastUpdated=Date.now();online=true;
     $('connection').innerHTML='<i class="dot pulse"></i>'+t('本地服务在线')+'';
-    const key=JSON.stringify([data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay,data.calendar,data.autoRegion,data.timezone]);
+    const key=JSON.stringify([data.prompt,data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay,data.calendar,data.autoRegion,data.timezone]);
     if(key!==fingerprint){fingerprint=key;hideTip();selectAccount();}
     renderNotice();renderClock();
     if(initialSource){
@@ -803,9 +804,12 @@ function backToDetails(){
 }
 async function showResponse(r){
     $('original-title').hidden=true;
+    $('run-prompt').hidden=true;
     $('modal-title').textContent=t('模型原文');
     const pre=document.createElement('pre');
     pre.className='raw-answer';
+    pre.lang=r.inputLanguage || '';
+    pre.dir='auto';
     pre.tabIndex=0;
     pre.textContent=t('正在读取模型原文…');
     $('modal-art').replaceChildren(pre);
@@ -841,6 +845,10 @@ function openRun(id){
     original.hidden=!r.title || title===r.title;
     original.open=false;
     $('original-title-text').textContent=r.title || '';
+    $('run-prompt').hidden=!r.inputPrompt;
+    $('run-prompt').open=false;
+    $('run-prompt-text').textContent=r.inputPrompt || '';
+    $('run-prompt-text').lang=r.inputLanguage || '';
     $('modal-time').textContent=(state.account?.name||t('早期记录'))+' · '+t('开始')+' '+stamp(r.startedAt)+(r.finishedAt?' · '+t('结束')+' '+stamp(r.finishedAt):'')+' · '+label(r.status);
     $('modal-note').textContent=[r.source==='magpie'?t('喜鹊插件'):t('Codex 旧任务'),triggerLabel(r),r.model,r.reasoningEffort,duration(r)].filter(Boolean).join(' · ');
     $('modal-art').innerHTML=r.original && r.status==='success'

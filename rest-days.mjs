@@ -2,11 +2,13 @@ import { createHash } from 'node:crypto';
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 const regionalCalendars = JSON.parse(readFileSync(new URL('./calendars.json', import.meta.url), 'utf8'));
 export const regions = ['CN', ...Object.keys(regionalCalendars)].sort();
 export const defaultCalendar = Object.freeze({ region: 'auto', overrides: {} });
-function hostLocale() {
+export function hostLocale() {
   // A GUI app on macOS may start with a C/POSIX shell locale.
   if (process.platform === 'darwin') {
     try {
@@ -19,6 +21,24 @@ function hostLocale() {
         const region = new Intl.Locale(format.trim().split('@')[0].replaceAll('_','-')).region;
         return new Intl.Locale(language,{region}).toString();
       }
+    } catch { /* Fall back to the host runtime. */ }
+  } else if (process.platform === 'linux') {
+    const config = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
+    const files = [join(config, 'locale.conf')];
+    if (/^[\w.-]+$/.test(process.env.USER || '')) files.push(join('/var/lib/AccountsService/users', process.env.USER));
+    for (const file of files) {
+      try {
+        const values = Object.fromEntries([...readFileSync(file, 'utf8').matchAll(/^(Language|LANGUAGE|LC_ALL|LC_MESSAGES|LANG)=["']?([^"'#\s]+)/gm)]
+          .map(match => [match[1], match[2]]));
+        const tag = (values.Language || values.LANGUAGE || values.LC_ALL || values.LC_MESSAGES || values.LANG || '').split(/[:.@]/)[0];
+        if (tag) return new Intl.Locale(tag.replaceAll('_', '-')).toString();
+      } catch { continue; }
+    }
+  } else if (process.platform === 'win32') {
+    try {
+      const tag = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+        '[System.Globalization.CultureInfo]::CurrentUICulture.Name'], { encoding: 'utf8', timeout: 3000, windowsHide: true }).trim();
+      return new Intl.Locale(tag).toString();
     } catch { /* Fall back to the host runtime. */ }
   }
   return Intl.DateTimeFormat().resolvedOptions().locale;

@@ -16,7 +16,7 @@ Enable the plugin and keep Magpie running on an awake computer. Checks make real
 
 ## Language and help
 
-The dashboard follows your system language on first use. The selector at the top right offers Simplified Chinese, Traditional Chinese, English, Japanese and German. Choose **System language** to return to automatic selection. Unsupported languages fall back to Simplified Chinese. The dashboard title and user guide follow this selection. Magpie uses its own interface language for the sidebar and plugin details. The gallery shows localized artwork titles and a translation of the test prompt. Expand the prompt to read the exact text sent, or open a run to see the original title. An artwork without a title translation gets a dated display label. Account names, model replies and artwork files retain their original content.
+With **System language** selected, each check reads the language of the computer running Magpie. You can also choose Simplified Chinese, Traditional Chinese, English, Japanese or German on the local dashboard. Unsupported languages fall back to Simplified Chinese. The plugin sends the prompt in the selected language and asks the model to use it for the reply, title, visible text and accessibility descriptions. Open a run to read its exact prompt and original response. Language changes apply to future checks. Magpie uses its own interface language for the sidebar and plugin details.
 
 ## Scheduling and quiet hours
 
@@ -36,7 +36,7 @@ Calendars are available offline. Mainland China uses the published holiday and m
 
 ## Checks, previews and storage
 
-Magpie’s local gateway sends the fixed prompt from `input.txt` to `gpt-6.2-astra` with `xhigh` reasoning. Up to three accounts can run at once. Open a run to see the original reply, HTML, extracted SVG and preview. **Back to run details** returns from the raw response. The extractor also handles a complete HTML document inside a JSON string.
+Magpie’s local gateway sends the fixed task in the check’s language to `gpt-6.2-astra` with `xhigh` reasoning. Up to three accounts can run at once. Open a run to see the original reply, HTML, extracted SVG and preview. **Back to run details** returns from the raw response. The extractor also handles a complete HTML document inside a JSON string.
 
 Thumbnails play when visible. When a recording is unavailable, the gallery plays the saved HTML preview in a sandbox, including for older artwork. If the plugin finds Chrome or Chromium and FFmpeg, it records silent 60 fps previews for scripted artwork and saves 30 fps animated PNGs for browsers that restrict autoplay. Set `CHROME_PATH` and `FFMPEG_PATH` to the executables for custom installations.
 
