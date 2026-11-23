@@ -43,10 +43,24 @@ for (const el of document.querySelectorAll('[aria-label]')) {
   const key = el.getAttribute('aria-label');
   if (Object.hasOwn(messages, key)) staticBindings.push(() => el.setAttribute('aria-label', t(key)));
 }
+const guide = document.getElementById('user-guide');
+function renderGuide() {
+  if (!guide.open) return;
+  const content = document.getElementById('guide-content');
+  if (content.lang === locale) return;
+  content.replaceChildren(document.getElementById('guide-' + locale).content.cloneNode(true));
+  content.lang = locale;
+  for (const link of content.querySelectorAll('a[href]')) {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+}
+guide.addEventListener('toggle', renderGuide);
 function translateTemplate() {
   document.documentElement.lang = locale;
   document.title = t('鹈鹕巡检');
   languageMenu.value = preference;
   for (const apply of staticBindings) apply();
+  renderGuide();
 }
 translateTemplate();

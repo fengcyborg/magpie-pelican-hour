@@ -178,6 +178,12 @@ img[data-src]:not([src]){visibility:hidden}
 .rest-key{padding:2px 5px;border-radius:4px}.custom-key{display:inline-flex;align-items:center;gap:5px}
 #month-warning,.calendar-tip{margin:6px 0 0;color:#637268;font-size:12px;line-height:1.5}
 @media(pointer:coarse){.calendar-grid button,.month-nav button{min-height:42px}}
+.user-guide{margin:12px 0;color:var(--ink);border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.user-guide summary{cursor:pointer;padding:14px 18px;font-size:14px;font-weight:600}
+.user-guide article{max-width:80ch;padding:0 18px 20px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.user-guide article h2,.user-guide article h3{line-height:1.3;margin:1.25em 0 .55em}
+.user-guide article p{margin:.75em 0}.user-guide article a{color:#326b50;text-decoration:underline}
+.user-guide pre{overflow-x:auto;background:#f5f7f5;padding:10px 14px;border-radius:7px;white-space:pre}
 </style>
 <!--monitor-control-->
 <!--local-language-->
@@ -227,6 +233,7 @@ img[data-src]:not([src]){visibility:hidden}
 <section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">固定提示词</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
 <section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
 <details class="prompt-details"><summary>查看检测使用的原始提示词</summary><p id="prompt"></p></details>
+<details class="user-guide" id="user-guide"><summary>使用说明</summary><article id="guide-content"></article></details>
 <footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
 </main>
 <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
@@ -237,6 +244,7 @@ img[data-src]:not([src]){visibility:hidden}
 <div class="dial-footer"><button type="button" id="dial-cancel">取消</button><button type="button" id="dial-done">完成</button></div>
 </dialog>
 <!--snapshot-->
+<!--guides-->
 <!--language-script-->
 <script>
 'use strict';

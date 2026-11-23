@@ -1,4 +1,5 @@
 {
+  "使用说明": {"en": "User guide", "ja": "使い方ガイド", "de": "Anleitung", "zh-TW": "使用說明"},
   "鹈鹕巡检 首页": {"en": "Pelican Monitor home", "ja": "ペリカンモニターのホーム", "de": "Startseite des Pelikan-Monitors", "zh-TW": "鵜鶘巡檢 首頁"},
   "鹈鹕巡检": {"en": "Pelican Monitor", "ja": "ペリカンモニター", "de": "Pelikan-Monitor", "zh-TW": "鵜鶘巡檢"},
   "喜鹊 · 账号巡检": {"en": "Magpie · Account monitoring", "ja": "Magpie · アカウント監視", "de": "Magpie · Kontoüberwachung", "zh-TW": "喜鵲 · 帳號巡檢"},

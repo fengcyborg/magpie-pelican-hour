@@ -4,7 +4,14 @@ import { join } from 'node:path';
 
 const galleryFile = name => readFileSync(new URL('./gallery/' + name, import.meta.url), 'utf8');
 const messages = galleryFile('messages.json').replaceAll('<', '\\u003c');
-const page = galleryFile('index.html').replace('/*calendar-script*/', () => galleryFile('calendar.js')).replace('<!--language-script-->', () =>
+const guides = ['en','zh-CN','zh-TW','ja','de'].map(locale => {
+  const name = locale === 'en' ? 'README.md' : 'README.' + locale + '.md';
+  const markdown = readFileSync(new URL(name, import.meta.url), 'utf8')
+    .replace(/^\[English\]\([^\n]+\n/m, '') // The dashboard already has a language selector.
+    .replace(/^#{1,2} /gm, heading => '#' + heading);
+  return '<template id="guide-' + locale + '">' + Bun.markdown.html(markdown) + '</template>';
+}).join('');
+const page = galleryFile('index.html').replace('<!--guides-->', () => guides).replace('/*calendar-script*/', () => galleryFile('calendar.js')).replace('<!--language-script-->', () =>
   '<script type="application/json" id="translations">' + messages + '</script><script>' + galleryFile('language.js') + '</script>');
 const icon = readFileSync(new URL('./page/icon.png', import.meta.url));
 const allowedArtifact = /^\/(?:runs\/\d{8}-\d{6}|accounts\/[0-9a-f]{20}\/runs\/(?:\d{6,9}|\d{8}-\d{6}|switch-[0-9a-f]{32}|sample-\d{1,12}))\/(?:original\.html|preview\.html|artwork\.svg|thumbnail\.(?:gif|png|mp4)|response\.txt)$/;
