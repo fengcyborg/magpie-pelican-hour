@@ -96,6 +96,12 @@ export class Archive {
     this.root = root;
     mkdirSync(root, { recursive: true, mode: 0o700 });
     this.info = readJSON(join(root, 'monitor.json'), { accounts: [] });
+    try {
+      this.titleTranslations = readJSON(join(root, 'artwork-titles.json'), {}) || {};
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+      this.titleTranslations = {};
+    }
     this.records = new Map();
     this.paths = new Map();
     this.lastResumeAt = new Map();
@@ -313,7 +319,9 @@ export class Archive {
     const runs = [], legacyRuns = [];
     for (const r of sorted) {
       const dest = r.accountId || r.experimentMode === 'independent' ? runs : legacyRuns;
-      dest.push(Object.fromEntries(publicFields.filter(k => k in r).map(k => [k, r[k]])));
+      const item = Object.fromEntries(publicFields.filter(k => k in r).map(k => [k, r[k]]));
+      if (Object.hasOwn(this.titleTranslations, r.title)) item.localizedTitles = this.titleTranslations[r.title];
+      dest.push(item);
     }
     const rest = this.restSchedule;
     const today = this.classify(now);

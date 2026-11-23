@@ -1,4 +1,9 @@
 {
+  "检测使用的提示词": {"zh-TW": "檢測使用的提示詞", "en": "Test prompt", "ja": "チェック用のプロンプト", "de": "Test-Prompt"},
+  "查看发送的原文": {"zh-TW": "查看送出的原文", "en": "View the prompt as sent", "ja": "送信した原文を表示", "de": "Gesendeten Originaltext anzeigen"},
+  "原始作品标题": {"zh-TW": "原始作品標題", "en": "Original artwork title", "ja": "作品の元のタイトル", "de": "Originaltitel des Werks"},
+  "作品 · {time}": {"zh-TW": "作品 · {time}", "en": "Artwork · {time}", "ja": "作品 · {time}", "de": "Werk · {time}"},
+  "创建一个HTML，内容是SVG绘制一个鹈鹕骑自行车的2D动画，你不需要看工作区其他文件，你不需要任何测试，只靠你自己完成，不要使用任何skill，不要依赖我本地的AGENTS.md": {"zh-TW": "建立一份 HTML，以 SVG 繪製鵜鶘騎腳踏車的 2D 動畫。你不需要查看工作區的其他檔案，也不需要執行任何測試。請獨立完成，不要使用任何技能，也不要依賴我本機的 AGENTS.md。", "en": "Create an HTML document with a 2D SVG animation of a pelican riding a bicycle. You don’t need to look at other files in the workspace or run any tests. Complete it yourself, without using any skills or relying on my local AGENTS.md.", "ja": "自転車に乗るペリカンの2Dアニメーションを SVG で描いた HTML を作成してください。ワークスペースのほかのファイルを確認する必要も、テストを行う必要もありません。自力で仕上げ、スキルは使わず、私のローカルの AGENTS.md にも依存しないでください。", "de": "Erstelle ein HTML-Dokument mit einer zweidimensionalen SVG-Animation eines Pelikans, der Fahrrad fährt. Du brauchst keine anderen Dateien im Arbeitsbereich anzusehen und keine Tests auszuführen. Erledige die Aufgabe selbstständig, ohne Skills zu verwenden oder dich auf meine lokale AGENTS.md zu stützen."},
   "使用说明": {"en": "User guide", "ja": "使い方ガイド", "de": "Anleitung", "zh-TW": "使用說明"},
   "鹈鹕巡检 首页": {"en": "Pelican Monitor home", "ja": "ペリカンモニターのホーム", "de": "Startseite des Pelikan-Monitors", "zh-TW": "鵜鶘巡檢 首頁"},
   "鹈鹕巡检": {"en": "Pelican Monitor", "ja": "ペリカンモニター", "de": "Pelikan-Monitor", "zh-TW": "鵜鶘巡檢"},

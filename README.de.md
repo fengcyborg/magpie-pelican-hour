@@ -16,7 +16,7 @@ Aktiviere das Plugin und lass Magpie auf einem wachen Rechner laufen. Jede Prüf
 
 ## Sprache und Anleitung
 
-Beim ersten Öffnen gilt die Systemsprache. Oben rechts kannst du vereinfachtes oder traditionelles Chinesisch, Englisch, Japanisch oder Deutsch wählen. Mit **Systemsprache** kehrst du zur automatischen Auswahl zurück. Für nicht unterstützte Sprachen erscheint vereinfachtes Chinesisch. Der Titel des Dashboards und die Anleitung folgen dieser Auswahl. Für die Seitenleiste und die Plugin-Details gilt die Sprache von Magpie. Kontonamen, Prompts, Modellantworten und gespeicherte Werke bleiben im Original.
+Beim ersten Öffnen gilt die Systemsprache. Oben rechts kannst du vereinfachtes oder traditionelles Chinesisch, Englisch, Japanisch oder Deutsch wählen. Mit **Systemsprache** kehrst du zur automatischen Auswahl zurück. Für nicht unterstützte Sprachen erscheint vereinfachtes Chinesisch. Der Titel des Dashboards und die Anleitung folgen dieser Auswahl. Für die Seitenleiste und die Plugin-Details gilt die Sprache von Magpie. Die Galerie zeigt übersetzte Werktitel und den Test-Prompt in der gewählten Sprache. Den tatsächlich gesendeten Text kannst du unter dem Prompt öffnen, den Originaltitel in den Laufdetails. Fehlt eine Übersetzung, erscheint ein Titel mit Datum und Uhrzeit. Kontonamen, Modellantworten und Werkdateien behalten ihren ursprünglichen Inhalt.
 
 ## Zeitplan und Ruhezeiten
 

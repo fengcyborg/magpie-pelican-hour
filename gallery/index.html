@@ -184,6 +184,8 @@ img[data-src]:not([src]){visibility:hidden}
 .user-guide article h2,.user-guide article h3{line-height:1.3;margin:1.25em 0 .55em}
 .user-guide article p{margin:.75em 0}.user-guide article a{color:#326b50;text-decoration:underline}
 .user-guide pre{overflow-x:auto;background:#f5f7f5;padding:10px 14px;border-radius:7px;white-space:pre}
+#original-title{margin-top:6px;color:#647269;font-size:11px}#original-title summary,.prompt-details summary{cursor:pointer;color:#56685c}
+#original-title p{margin-top:4px;overflow-wrap:anywhere;font:inherit}.prompt-details #prompt,.prompt-details #prompt-source-text{color:#425247}
 </style>
 <!--monitor-control-->
 <!--local-language-->
@@ -232,12 +234,12 @@ img[data-src]:not([src]){visibility:hidden}
 <div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote"><span id="timeline-help"></span><br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
 <section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">固定提示词</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
 <section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
-<details class="prompt-details"><summary>查看检测使用的原始提示词</summary><p id="prompt"></p></details>
+<details class="prompt-details"><summary>检测使用的提示词</summary><p id="prompt"></p><details id="prompt-source" hidden><summary>查看发送的原文</summary><p id="prompt-source-text" lang="zh-CN"></p></details></details>
 <details class="user-guide" id="user-guide"><summary>使用说明</summary><article id="guide-content"></article></details>
 <footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
 </main>
 <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
-<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div><div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
+<dialog id="modal" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">运行记录</h2><p id="modal-time"></p><details id="original-title" hidden><summary>原始作品标题</summary><p id="original-title-text" dir="auto"></p></details></div><button type="button" class="close" id="close-modal" aria-label="关闭放大预览">×</button></div><div class="modal-art" id="modal-art"></div><div class="modal-actions"><span id="modal-note"></span><div class="modal-links" id="modal-links"></div></div></dialog>
 <dialog id="time-dial" aria-labelledby="dial-title">
 <div class="dial-head"><h3 id="dial-title">开始时间</h3><span class="dial-zone" data-zone>北京时间</span></div>
 <div class="dial-face"><div class="dial-wheel" id="dial-hours" role="spinbutton" aria-label="小时" tabindex="0"></div><span class="dial-colon" aria-hidden="true">:</span><div class="dial-wheel" id="dial-minutes" role="spinbutton" aria-label="分钟" tabindex="0"></div></div>
@@ -302,9 +304,27 @@ function renderClock(){
     if(lastUpdated&&online)$('updated').textContent=t('{n} 秒前更新',{n:Math.max(0,Math.floor((Date.now()-lastUpdated)/1000))});
 }
 function renderTimeline(){if(!state)return;$('timeline-label').textContent=range===24?t('最近 24 小时'):t('最近 7 天');$('range-start').textContent=range===24?t('24 小时前'):t('7 天前');$('timeline').classList.toggle('week',range>24);const current=Math.floor(currentTime()/HOUR)*HOUR;slots=[];let html='';for(let i=0;i<range;i++){const start=current-(range-1-i)*HOUR;const runs=state.runs.filter(r=>Date.parse(r.startedAt)>=start&&Date.parse(r.startedAt)<start+HOUR);const run=runs.find(r=>r.status==='running')||runs[0];slots.push({start,run,runs});const latest=run&&run.id===state.runs[0]?.id;html+='<button type="button" class="segment '+(run?.status||'')+(latest?' latest':'')+(range>24?' week-item':'')+'" data-slot="'+i+'" aria-label="'+escapeHTML(stamp(start)+' '+label(run?.status))+'"></button>'}$('timeline').innerHTML=html;}
+const artworkTitles=JSON.parse($('artwork-titles').textContent);
+function displayTitle(run){
+    const raw=run.title || '';
+    const archived=run.localizedTitles?.[locale];
+    if(typeof archived==='string' && archived) return archived;
+    const parts=raw.split(/\s*[·•]\s*/u);
+    const translated=parts.map(part=>Object.hasOwn(artworkTitles,part)?artworkTitles[part][locale]:null);
+    if(translated.every(Boolean)) return translated.join(' · ');
+    if(locale==='zh-CN' && /\p{Script=Han}/u.test(raw)) return raw;
+    return t('作品 · {time}',{time:stamp(run.startedAt)});
+}
+function renderPrompt(){
+    const original=state.prompt || '';
+    const displayed=t(original);
+    $('prompt').textContent=displayed;
+    $('prompt-source').hidden=displayed===original;
+    $('prompt-source-text').textContent=original;
+}
 function thumbnail(run){
     const image=escapeHTML(run.thumbnail || run.svg);
-    const title=escapeHTML(run.title || t('动画预览'));
+    const title=escapeHTML(displayTitle(run));
     if(run.thumbnailVideo) return '<video muted playsinline loop preload="none" disablepictureinpicture aria-label="'+title+'" data-src="'+escapeHTML(run.thumbnailVideo)+'" data-image="'+image+'"></video>';
     return '<img data-src="'+image+'" alt="'+title+'">';
 }
@@ -354,8 +374,8 @@ for(const id of ['featured','gallery','tooltip']) previewChanges.observe($(id),{
 function syncVisiblePreviews(){visiblePreviews.forEach(syncPreview);}
 document.addEventListener('visibilitychange',syncVisiblePreviews);
 new MutationObserver(syncVisiblePreviews).observe($('modal'),{attributes:true,attributeFilter:['open']});
-function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=t('{n} 条记录',{n:items.length});$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(systemMessage(r.stage)||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(r.title)+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>'+t('等待下一次独立运行')+'</strong><small>'+t('按此账号的计划检测')+'</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>'+t('这个分类还没有记录')+'</strong><small>'+t('新结果会自动显示在这里')+'</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
-function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>'+t('份')+'</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?t('已结束 {total} 次 · 保存 {saved} 次',{total:finished.length,saved:good.length}):t('以已结束的实际任务计算');$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+fmt(latest.startedAt,{month:'2-digit',day:'2-digit'}):t('等待第一段骑行');$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),systemMessage(running.stage)].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?t('免打扰中'):state.account?.pendingSwitchChecks?t('开关检测待运行'):state.account?.monitoringPaused?t('检测已暂停'):(latest?.status==='success'?t('本次已保存，等待下次生成'):latest?label(latest.status):t('等待此账号输出'));$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?t('历史归档'):!state.account?.enabled?t('供应商账号未启用'):state.account.monitoringPaused?t('检测已暂停'):state.scheduleStatus==='active'?(state.restSchedule?.enabled?t(state.calendarDay.label)+' · '+(state.calendarDay.rest?t('每账号 {n} 次',{n:state.restSchedule.count}):t('约每小时一次')):t('喜鹊插件 · 每小时随机分钟')):t('喜鹊插件离线');$('prompt').textContent=state.prompt;document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">'+t('⤢ 点击放大')+'</span>';$('featured-title').textContent=featured.title;$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||t('历史输出'))+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">'+t('等待此账号输出')+'</div>';$('featured-title').textContent=running?t('正在独立生成'):t('等待输出');$('featured-meta').textContent=state.model||t('固定提示词')}renderTimeline();renderGallery();renderClock();}
+function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=t('{n} 条记录',{n:items.length});$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(systemMessage(r.stage)||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(displayTitle(r))+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>'+t('等待下一次独立运行')+'</strong><small>'+t('按此账号的计划检测')+'</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>'+t('这个分类还没有记录')+'</strong><small>'+t('新结果会自动显示在这里')+'</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
+function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>'+t('份')+'</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?t('已结束 {total} 次 · 保存 {saved} 次',{total:finished.length,saved:good.length}):t('以已结束的实际任务计算');$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+fmt(latest.startedAt,{month:'2-digit',day:'2-digit'}):t('等待第一段骑行');$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),systemMessage(running.stage)].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?t('免打扰中'):state.account?.pendingSwitchChecks?t('开关检测待运行'):state.account?.monitoringPaused?t('检测已暂停'):(latest?.status==='success'?t('本次已保存，等待下次生成'):latest?label(latest.status):t('等待此账号输出'));$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?t('历史归档'):!state.account?.enabled?t('供应商账号未启用'):state.account.monitoringPaused?t('检测已暂停'):state.scheduleStatus==='active'?(state.restSchedule?.enabled?t(state.calendarDay.label)+' · '+(state.calendarDay.rest?t('每账号 {n} 次',{n:state.restSchedule.count}):t('约每小时一次')):t('喜鹊插件 · 每小时随机分钟')):t('喜鹊插件离线');renderPrompt();document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">'+t('⤢ 点击放大')+'</span>';$('featured-title').textContent=displayTitle(featured);$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||t('历史输出'))+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">'+t('等待此账号输出')+'</div>';$('featured-title').textContent=running?t('正在独立生成'):t('等待输出');$('featured-meta').textContent=state.model||t('固定提示词')}renderTimeline();renderGallery();renderClock();}
 function renderNotice(){
     let note='';
     if(!online) note=t('暂时连不上监测网页，正在重连。');
@@ -759,6 +779,7 @@ function backToDetails(){
     $('show-response')?.focus();
 }
 async function showResponse(r){
+    $('original-title').hidden=true;
     $('modal-title').textContent=t('模型原文');
     const pre=document.createElement('pre');
     pre.className='raw-answer';
@@ -791,11 +812,16 @@ function openRun(id){
     if(!r)return;
     detailRunId=r.id;
     hideTip();
-    $('modal-title').textContent=r.title;
+    const title=displayTitle(r);
+    $('modal-title').textContent=title;
+    const original=$('original-title');
+    original.hidden=!r.title || title===r.title;
+    original.open=false;
+    $('original-title-text').textContent=r.title || '';
     $('modal-time').textContent=(state.account?.name||t('早期记录'))+' · '+t('开始')+' '+stamp(r.startedAt)+(r.finishedAt?' · '+t('结束')+' '+stamp(r.finishedAt):'')+' · '+label(r.status);
     $('modal-note').textContent=[r.source==='magpie'?t('喜鹊插件'):t('Codex 旧任务'),triggerLabel(r),r.model,r.reasoningEffort,duration(r)].filter(Boolean).join(' · ');
     $('modal-art').innerHTML=r.original && r.status==='success'
-        ? '<iframe src="'+escapeHTML(r.original)+'" title="'+escapeHTML(r.title)+'" sandbox="allow-scripts"></iframe>'
+        ? '<iframe src="'+escapeHTML(r.original)+'" title="'+escapeHTML(displayTitle(r))+'" sandbox="allow-scripts"></iframe>'
         : '<div class="modal-message">'+escapeHTML(systemMessage(r.note||r.stage))+'</div>';
     const links=[];
     if(r.original && !document.getElementById('snapshot'))links.push('<a href="'+escapeHTML(r.original)+'" target="_blank" rel="noopener noreferrer">'+t('打开原始 HTML ↗')+'</a>');
