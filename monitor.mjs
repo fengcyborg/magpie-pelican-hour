@@ -131,7 +131,7 @@ async function probe(archive, gateway, entry, now, check, signal) {
   const { account, login } = entry;
   const key = check?.key ?? slot;
   const id = account.id + '-' + key;
-  if (archive.records.has(id) || (check?.trigger !== 'resume' && !archive.canMonitor(account.id, slot))) return;
+  if (archive.records.has(id) || archive.damagedRuns.has(id) || (!['resume','manual'].includes(check?.trigger) && !archive.canMonitor(account.id, slot))) return;
   const url = '/accounts/' + account.id + '/runs/' + key;
   const folder = join(archive.root, url.slice(1));
   const path = join(folder, 'run.json');
@@ -139,12 +139,15 @@ async function probe(archive, gateway, entry, now, check, signal) {
     ...archive.currentInput(true), status: 'running', stage: '喜鹊正在请求模型',
     startedAt: new Date(now).toISOString(), finishedAt: null, slot, model, reasoningEffort: effort,
     trigger: check?.trigger || 'scheduled', requestedAt: check?.requestedAt,
-    note: '' };
+    modelOutcome: 'unattempted', artworkOutcome: 'unattempted', note: '' };
   archive.saveRun(path, meta);
   try {
     if (!account.present || !account.enabled) throw new Error(account.present ? '供应商账号已停用，无法发起检测' : '供应商账号已移除，无法发起检测');
+    meta.modelOutcome = 'pending';
     const reply = await requestGeneration(gateway, login, id, signal, meta.inputPrompt);
     signal.throwIfAborted();
+    meta.modelOutcome = reply.status === 'completed' && !reply.error ? 'success' : 'failed';
+    if (meta.modelOutcome === 'success') meta.artworkOutcome = 'pending';
     const answer = (reply.output || []).filter(item => item.type === 'message').flatMap(item =>
       (item.content || []).filter(part => part.type === 'output_text').map(part => part.text)).join('\n');
     writeFileSync(join(folder, 'response.txt'), answer, { mode: 0o600 });
@@ -173,11 +176,13 @@ async function probe(archive, gateway, entry, now, check, signal) {
       }
     }
     Object.assign(meta, { svg: url + '/artwork.svg', preview: url + '/preview.html', bytes: Buffer.byteLength(svg),
-      status: 'success', stage: '已生成并保存' });
+      artworkOutcome: 'success', status: 'success', stage: '已生成并保存' });
   } catch (err) {
     Object.assign(meta, signal.aborted
-      ? { status: 'interrupted', stage: '检测中断', note: signal.reason.message }
+      ? { status: 'interrupted', interruption: 'active', stage: '检测中断', note: signal.reason.message }
       : { status: 'failed', stage: '检测失败', note: safeReason(err.message) });
+    if (!signal.aborted && meta.modelOutcome === 'pending') meta.modelOutcome = 'failed';
+    if (!signal.aborted && meta.artworkOutcome === 'pending') meta.artworkOutcome = 'failed';
   }
   meta.finishedAt = new Date().toISOString();
   archive.saveRun(path, meta);
@@ -185,7 +190,7 @@ async function probe(archive, gateway, entry, now, check, signal) {
 
 export function createScheduler(archive, discover = listAccounts, clock = Date.now) {
   const running = new Set();
-  let controller = new AbortController(), timer, deadline, onBoundary;
+  let controller = new AbortController(), timer, deadline, onBoundary, lastTick;
   function refreshQuietHours(now = clock()) {
     const window = quietWindow(archive.quietHours, now);
     const quiet = window && window.start <= now;
@@ -206,20 +211,31 @@ export function createScheduler(archive, discover = listAccounts, clock = Date.n
   async function dispatchDue(gateway, wake) {
     onBoundary = wake;
     let now = clock();
+    if (lastTick === undefined || now < lastTick || now - lastTick > 90000) archive.liveDue.clear();
+    lastTick = now;
     archive.planDispatches(now);
     const signal = refreshQuietHours(now);
     if (signal.aborted) return;
     const plans = archive.info.nextByAccount;
+    for (const [id, at] of archive.liveDue) if (plans[id] !== at) archive.liveDue.delete(id);
+    for (const [id, at] of Object.entries(plans)) {
+      if (at <= now && now - at < minute) archive.liveDue.set(id, at);
+    }
     const due = running.size < 3 && Object.entries(plans).some(([id, time]) => time <= now && !running.has(id));
     const inventorySlot = Math.floor(Date.parse(archive.info.inventoryAt) / hour);
-    const switchDue = running.size < 3 && archive.info.switchChecks?.some(check => !running.has(check.accountId));
+    const switchDue = running.size < 3 && [...archive.info.switchChecks || [], ...archive.info.manualChecks || []].some(check => !running.has(check.accountId));
     if (!due && !switchDue && inventorySlot === Math.floor(now / hour) && !archive.info.error) return;
 
     // Refresh account availability at the hour boundary and before a dispatch.
     let entries;
     try { entries = await discover(gateway, signal); }
-    catch (err) { if (signal.aborted) return; throw err; }
+    catch (err) {
+      for (const id of archive.liveDue.keys()) if (!running.has(id) && running.size < 3) archive.liveDue.delete(id);
+      if (signal.aborted) return;
+      throw err;
+    }
     now = clock();
+    if (now < lastTick || now - lastTick > 90000) archive.liveDue.clear();
     if (refreshQuietHours(now).aborted || signal.aborted) return;
     const accounts = entries.map(e => e.account);
     const present = new Set(accounts.map(a => a.id));
@@ -232,7 +248,7 @@ export function createScheduler(archive, discover = listAccounts, clock = Date.n
       const id = entry.account.id;
       const start = clock();
       if (refreshQuietHours(start).aborted || signal.aborted || running.has(id) || running.size >= 3) return;
-      if (check?.trigger !== 'resume' && Math.floor(start / hour) !== Math.floor(now / hour)) return;
+      if (!['resume','manual'].includes(check?.trigger) && Math.floor(start / hour) !== Math.floor(now / hour)) return;
       running.add(id);
       started = true;
       // probe persists the run before sending. Other accounts can start on a
@@ -241,12 +257,14 @@ export function createScheduler(archive, discover = listAccounts, clock = Date.n
         .catch(err => { console.error('[鹈鹕巡检]', id, err.message); })
         .finally(() => {
           running.delete(id);
-          if (archive.info.switchChecks?.length && archive.records.has(id + '-' + (check?.key ?? Math.floor(now / hour)))) wake?.();
+          if (archive.records.has(id + '-' + (check?.key ?? Math.floor(now / hour)))) wake?.();
         });
     }
     const checks = archive.info.switchChecks || [];
-    for (const check of checks) {
-      if (archive.records.has(check.accountId + '-' + check.key)) continue;
+    const manual = archive.info.manualChecks || [];
+    const consumed = check => archive.records.has(check.accountId + '-' + check.key) || archive.damagedRuns.has(check.accountId + '-' + check.key);
+    for (const check of [...checks, ...manual]) {
+      if (consumed(check)) continue;
       const entry = entries.find(e => e.account.id === check.accountId) || { account: { id: check.accountId, present: false } };
       launch(entry, check);
     }
@@ -260,9 +278,10 @@ export function createScheduler(archive, discover = listAccounts, clock = Date.n
     }
     // A persisted run is the receipt for a switch check. A restart in between
     // the two writes consumes that receipt without sending the request again.
-    const remaining = checks.filter(check => !archive.records.has(check.accountId + '-' + check.key));
+    const remaining = checks.filter(check => !consumed(check));
     const changes = {};
     if (remaining.length !== checks.length) changes.switchChecks = remaining;
+    if (manual.some(consumed)) changes.manualChecks = manual.filter(check => !consumed(check));
     if (started) changes.lastDispatchAt = now;
     archive.planDispatches(now, changes);
   }

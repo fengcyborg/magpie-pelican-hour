@@ -15,7 +15,7 @@ const guides = ['en','zh-CN','zh-TW','ja','de'].map(locale => {
 const page = galleryFile('index.html').replace('<!--guides-->', () => guides).replace('/*calendar-script*/', () => galleryFile('calendar.js')).replace('<!--language-script-->', () =>
   '<script type="application/json" id="artwork-titles">' + artworkTitles + '</script><script type="application/json" id="translations">' + messages + '</script><script>' + galleryFile('language.js') + '</script>');
 const icon = readFileSync(new URL('./page/icon.png', import.meta.url));
-const allowedArtifact = /^\/(?:runs\/\d{8}-\d{6}|accounts\/[0-9a-f]{20}\/runs\/(?:\d{6,9}|\d{8}-\d{6}|switch-[0-9a-f]{32}|sample-\d{1,12}))\/(?:original\.html|preview\.html|artwork\.svg|thumbnail\.(?:gif|png|mp4)|response\.txt)$/;
+const allowedArtifact = /^\/(?:runs\/\d{8}-\d{6}|accounts\/[0-9a-f]{20}\/runs\/(?:\d{6,9}|\d{8}-\d{6}|(?:switch|manual)-[0-9a-f]{32}|sample-\d{1,12}))\/(?:original\.html|preview\.html|artwork\.svg|thumbnail\.(?:gif|png|mp4)|response\.txt)$/;
 const pagePolicy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'";
 const artPolicy = "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'";
 const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -38,7 +38,8 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
       const url = new URL(req.url);
       const path = url.pathname;
       const isLocal = localHosts.has(url.hostname) && localPeers.has(server.requestIP(req)?.address);
-      const control = /^\/api\/accounts\/([0-9a-f]{20})\/monitoring$/.exec(path);
+      const control = /^\/api\/accounts\/([0-9a-f]{20})\/(monitoring|check)$/.exec(path);
+      const statusBody = () => archive.status(Date.now(), url.searchParams.get('summary') !== '1');
       if (control || path === '/api/quiet-hours' || path === '/api/language') {
         const origin = req.headers.get('Origin');
         const headers = { 'Cache-Control': 'no-store', Vary: 'Origin' };
@@ -75,14 +76,21 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
           if (!['true', 'false'].includes(enabled) || !archive.setQuietHours({ enabled: enabled === 'true',
             start: timeValue(form.get('start')), end: timeValue(form.get('end')) }, Date.now(), rest, calendar)) return new Response(null, { status: 400, headers });
           onQuietHoursChange?.();
-          return Response.json(archive.status(), { headers });
+          return Response.json(statusBody(), { headers });
+        }
+        if (control[2] === 'check') {
+          const token = form.get('requestId');
+          if (!/^[a-f0-9]{32}$/.test(token || '')) return new Response(null, { status: 400, headers });
+          if (!archive.requestManual(control[1], token)) return new Response(null, { status: 409, headers });
+          onMonitoringChange?.();
+          return Response.json(archive.status(Date.now(), false), { status: 202, headers });
         }
         const paused = form.get('paused');
         if (paused !== 'true' && paused !== 'false') return new Response(null, { status: 400, headers });
         const changed = (archive.info.monitoringFromSlot?.[control[1]] === null) !== (paused === 'true');
         if (!archive.setMonitoringPaused(control[1], paused === 'true')) return new Response(null, { status: 404, headers });
         if (changed) onMonitoringChange?.();
-        return Response.json({ ...archive.status(), monitoringChanged: changed, switchCheckRequested: changed && paused === 'false' }, { headers });
+        return Response.json({ ...statusBody(), monitoringChanged: changed, switchCheckRequested: changed && paused === 'false' }, { headers });
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') return new Response(null, { status: 405, headers: { Allow: 'GET, HEAD' } });
       let body, type, policy = pagePolicy, status = 200, cache = 'no-store';
@@ -100,7 +108,7 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
             Location: up + '?' + embed + 'source=' + encodeURIComponent(run.id) + '#' + encodeURIComponent(run.accountId || 'history') } });
         }
       }
-      if ((path === '/api/status' || path === '/api/calendar' || rawText) && req.headers.get('Origin') === 'null') {
+      if ((path.startsWith('/api/') || rawText) && req.headers.get('Origin') === 'null') {
         if (url.searchParams.get('view') !== embeddedKey) {
           return new Response(null, { status: 403, headers: { 'Access-Control-Allow-Origin': 'null', 'Cache-Control': 'no-store' } });
         }
@@ -119,12 +127,29 @@ export function serveGallery(archive, { port = 18765, hostname = '0.0.0.0', onMo
           dates.push({date:dateKey(at), ...dayType(at,region==='auto'?archive.autoRegion():region)});
         }
         body = JSON.stringify(dates); type = 'application/json; charset=utf-8';
+      } else if (path === '/api/runs') {
+        const group = url.searchParams.get('account');
+        const filter = url.searchParams.get('filter') || 'all';
+        const limit = Number(url.searchParams.get('limit') ?? 12);
+        if (!(group === 'history' || archive.info.accounts.some(account => account.id === group)) ||
+            !['all','success','failed','running'].includes(filter) || !Number.isInteger(limit) || limit < 1 || limit > 100)
+          return new Response(null, { status: 400, headers: extra });
+        const result = archive.historyPage(group, filter, url.searchParams.get('cursor'), limit);
+        if (!result) return new Response(null, { status: 400, headers: extra });
+        body = JSON.stringify(result); type = 'application/json; charset=utf-8';
+      } else if (path.startsWith('/api/runs/')) {
+        let id;
+        try { id = decodeURIComponent(path.slice('/api/runs/'.length)); }
+        catch { return new Response(null, { status: 400, headers: extra }); }
+        const run = archive.records.get(id);
+        if (!run) return new Response(null, { status: 404, headers: extra });
+        body = JSON.stringify(archive.publicRun(run, true)); type = 'application/json; charset=utf-8';
       } else if (path === '/api/status') {
-        body = JSON.stringify(archive.status()); type = 'application/json; charset=utf-8';
+        body = JSON.stringify(statusBody()); type = 'application/json; charset=utf-8';
       } else if (path === '/' || path === '/index.html') {
         body = page; type = 'text/html; charset=utf-8';
         if (url.searchParams.get('embedded') === '1') {
-          const snapshot = JSON.stringify(archive.status()).replaceAll('<', '\\u003c');
+          const snapshot = JSON.stringify(archive.status(Date.now(), false)).replaceAll('<', '\\u003c');
           body = body.replace('<!--snapshot-->', () => '<script type="application/json" id="snapshot" data-view="' + embeddedKey + '">' + snapshot + '</script>');
           policy = pagePolicy.replaceAll("'self'", "'self' http://127.0.0.1:" + port);
         }

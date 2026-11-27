@@ -1,7 +1,7 @@
 import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 
 import { minute, midnight, localMinute, dateKey, dayType, defaultCalendar, validCalendar, hostLanguage, hostLocale, languageRegion, regions, sampleMinutes, defaultRestSchedule, validRestSchedule } from './rest-days.mjs';
 
@@ -108,7 +108,17 @@ function directories(root) {
 
 const publicFields = ['id', 'accountId', 'source', 'title', 'status', 'stage', 'startedAt', 'finishedAt', 'note',
   'experimentMode', 'inputLanguage', 'inputPrompt', 'inputSha256', 'model', 'reasoningEffort', 'original', 'preview', 'svg', 'bytes',
-  'responseText', 'thumbnail', 'thumbnailVideo', 'sourceHtmlSha256', 'trigger', 'requestedAt'];
+  'responseText', 'thumbnail', 'thumbnailVideo', 'sourceHtmlSha256', 'trigger', 'requestedAt',
+  'modelOutcome', 'artworkOutcome', 'interruption'];
+
+function outcomes(run) {
+  if (run.modelOutcome) return run;
+  const completed = run.status === 'success' || run.original || run.note === '模型回复中没有找到完整 HTML 文档';
+  const rejected = /^(喜鹊网关 HTTP |模型未完成输出|网关未确认指定)/.test(run.note || '');
+  return { modelOutcome: completed ? 'success' : rejected ? 'failed' : 'unknown',
+    artworkOutcome: run.status === 'success' ? 'success' : completed && run.status === 'failed' ? 'failed' : 'unknown',
+    interruption: run.status === 'interrupted' && /^(进入免打扰时段|插件已停止)/.test(run.note || '') ? 'active' : undefined };
+}
 
 export class Archive {
   constructor(root, readHostLocale = hostLocale) {
@@ -124,12 +134,23 @@ export class Archive {
       this.titleTranslations = {};
     }
     this.records = new Map();
+    this.accountRuns = new Map();
+    this.historyCache = new Map();
     this.paths = new Map();
     this.lastResumeAt = new Map();
     this.dailyChecks = new Map();
+    this.liveDue = new Map();
+    this.damagedRuns = new Map();
     const load = (path) => {
-      const run = readJSON(path, null);
-      if (run) {
+      try {
+        const run = readJSON(path, undefined);
+        if (run === undefined) return;
+        if (!run || typeof run.id !== 'string' || !run.id || !Number.isFinite(Date.parse(run.startedAt)) ||
+            !['running','success','failed','interrupted'].includes(run.status) ||
+            ['title','note','stage','accountId','original','preview','svg','responseText','thumbnail','thumbnailVideo'].some(
+              key => run[key] != null && typeof run[key] !== 'string')) {
+          throw new TypeError('Invalid run metadata');
+        }
         if (run.original) {
           const media = name => run.original.replace(/original\.html$/, name);
           const has = name => existsSync(join(dirname(path), name));
@@ -138,6 +159,11 @@ export class Archive {
           else if (has('thumbnail.gif')) run.thumbnail = media('thumbnail.gif');
         }
         this.rememberRun(path, run);
+      } catch (error) {
+        if (!(error instanceof SyntaxError || error instanceof TypeError) && !['EACCES','EIO','EPERM','EISDIR'].includes(error.code)) throw error;
+        const parts = relative(root, path).split(/[\\/]/);
+        const id = parts[0] === 'accounts' ? parts[1] + '-' + parts[3] : parts[1];
+        this.damagedRuns.set(id, relative(root, path));
       }
     };
     // Prefer the account-attributed copy when old bookmarks and the account archive coexist.
@@ -243,10 +269,14 @@ export class Archive {
     const quiet = info.quietHours || defaultQuietHours;
     // Older versions finished the entire hour in a single batch.
     const resumed = this.lastResumeAt.get(id) ?? -Infinity;
-    const used = this.records.has(id + '-' + slot) || Math.floor(resumed / hour) === slot || (!info.nextByAccount && info.completedSlot === slot);
+    const used = this.records.has(id + '-' + slot) || this.damagedRuns.has(id + '-' + slot) || Math.floor(resumed / hour) === slot || (!info.nextByAccount && info.completedSlot === slot);
     let target = Math.max(slot + Number(used), from || 0);
     const due = info.nextByAccount?.[id];
-    if (Number.isSafeInteger(due) && Math.floor(due / hour) >= target && due < until && due >= since) {
+    if (Number.isSafeInteger(due) && Math.floor(due/hour) === slot && due < Math.floor(now/minute)*minute && this.liveDue.get(id) !== due) {
+      target = Math.max(target, slot + 1);
+    }
+    if (Number.isSafeInteger(due) && (due >= Math.floor(now/minute)*minute || this.liveDue.get(id) === due) &&
+        Math.floor(due / hour) >= target && due < until && due >= since) {
       const window = quietWindow(quiet, now);
       const conflicts = window && (quietWindow(quiet, due).start <= due || (window.start <= now && due <= now));
       if (!conflicts) {
@@ -288,13 +318,14 @@ export class Archive {
       const points = sampleMinutes(rest, quiet, start, id);
       for (let i=0; i<points.length; i++) {
         const at = localMinute(start,points[i]);
-        if (at < from*hour || this.records.has(id+'-sample-'+Math.floor(at/minute))) continue;
+        const runId = id+'-sample-'+Math.floor(at/minute);
+        if (at < from*hour || this.records.has(runId) || this.damagedRuns.has(runId)) continue;
         if (at >= Math.floor(now/minute)*minute) return at;
         // A busy queue may still use its saved appointment. Never replay a
         // previous window after sleep, across a quiet period, or on another date.
         const window = quietWindow(quiet, at);
         const expires = Math.min(at+hour, localMinute(start, points[i+1] ?? 1440), window?.start ?? Infinity);
-        if (at === info.nextByAccount?.[id] && now < expires) return at;
+        if (at === info.nextByAccount?.[id] && this.liveDue.get(id) === at && now < expires) return at;
       }
     }
     return null;
@@ -314,6 +345,16 @@ export class Archive {
     return true;
   }
 
+  requestManual(id, token, now = Date.now()) {
+    if (!this.info.accounts.some(account => account.id === id && account.enabled && account.present)) return false;
+    const key = 'manual-' + token;
+    const pending = this.info.manualChecks || [];
+    if (pending.some(check => check.accountId === id) || this.records.has(id + '-' + key) || this.damagedRuns.has(id + '-' + key) ||
+        this.history(id).runningManual) return true;
+    this.saveInfo({ manualChecks: [...pending, { accountId: id, key, trigger: 'manual', requestedAt: new Date(now).toISOString() }] });
+    return true;
+  }
+
   saveRun(path, run) {
     mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
     writeJSON(path, run);
@@ -321,6 +362,16 @@ export class Archive {
   }
 
   rememberRun(path, run) {
+    const group = run.accountId || 'history';
+    const previous = this.records.get(run.id);
+    const previousGroup = previous?.accountId || 'history';
+    if (previous && previousGroup !== group) {
+      this.accountRuns.get(previousGroup)?.delete(run.id);
+      this.historyCache.delete(previousGroup);
+    }
+    if (!this.accountRuns.has(group)) this.accountRuns.set(group, new Set());
+    this.accountRuns.get(group).add(run.id);
+    this.historyCache.delete(group);
     if (!this.records.has(run.id) && run.source === 'magpie' && ['scheduled','rest-sample'].includes(run.trigger)) {
       const key = run.accountId+'@'+midnight(Date.parse(run.startedAt));
       this.dailyChecks.set(key, (this.dailyChecks.get(key) || 0)+1);
@@ -337,20 +388,77 @@ export class Archive {
     for (const run of this.records.values()) {
       if (run.source === 'magpie' && run.status === 'running') {
         this.saveRun(this.paths.get(run.id), { ...run, status: 'interrupted', stage: '运行中断',
-          note: '喜鹊插件在本次检测完成前退出', finishedAt: new Date().toISOString() });
+          interruption: 'restart', note: '喜鹊插件在本次检测完成前退出', finishedAt: new Date().toISOString() });
       }
     }
   }
 
-  status(now = Date.now()) {
+  publicRun(run, detail = false) {
+    if (!run) return null;
+    const item = Object.fromEntries(publicFields.filter(key => key in run && (detail || key !== 'inputPrompt')).map(key => [key, run[key]]));
+    if (Object.hasOwn(this.titleTranslations, run.title)) item.localizedTitles = this.titleTranslations[run.title];
+    return item;
+  }
+
+  history(group) {
+    if (this.historyCache.has(group)) return this.historyCache.get(group);
+    const ordered = Array.from(this.accountRuns.get(group) || [], id => this.records.get(id))
+      .sort((left, right) => Date.parse(right.startedAt) - Date.parse(left.startedAt) || right.id.localeCompare(left.id));
+    const stats = { total: ordered.length, saved: 0, failed: 0, running: 0, modelSuccess: 0, modelTotal: 0, artworkSuccess: 0, artworkTotal: 0,
+      interrupted: 0, activeInterruptions: 0, revision: randomUUID(), latestStatus: ordered[0]?.status };
+    for (const run of ordered) {
+      if (run.status === 'running') { stats.running++; continue; }
+      if (run.status === 'failed') stats.failed++;
+      if (run.status === 'success') stats.saved++;
+      const outcome = outcomes(run);
+      if (run.status === 'interrupted') {
+        stats.interrupted++;
+        if (outcome.interruption === 'active') stats.activeInterruptions++;
+        continue;
+      }
+      if (['success','failed'].includes(outcome.modelOutcome)) stats.modelTotal++;
+      if (outcome.modelOutcome === 'success') stats.modelSuccess++;
+      if (['success','failed'].includes(outcome.artworkOutcome)) stats.artworkTotal++;
+      if (outcome.artworkOutcome === 'success') stats.artworkSuccess++;
+    }
+    const history = { ordered, stats, featured: ordered.find(run => run.status === 'success'),
+      runningManual: ordered.some(run => run.status === 'running' && run.trigger === 'manual') };
+    this.historyCache.set(group, history);
+    return history;
+  }
+
+  historyPage(group, filter, cursor, limit, now = Date.now()) {
+    const history = this.history(group);
+    const runs = history.ordered;
+    const start = cursor ? runs.findIndex(run => run.id === cursor) + 1 : 0;
+    if (cursor && !start) return null;
+    const matches = run => filter === 'all' || run.status === filter || (filter === 'failed' && run.status === 'interrupted');
+    const items = [];
+    let more = false;
+    for (let index = start; index < runs.length; index++) {
+      if (!matches(runs[index])) continue;
+      if (items.length === limit) { more = true; break; }
+      items.push(this.publicRun(runs[index]));
+    }
+    const timeline = new Map();
+    const oldest = (Math.floor(now / hour) - 167) * hour;
+    for (const run of runs) {
+      const started = Date.parse(run.startedAt);
+      if (started < oldest) break;
+      const slot = Math.floor(started / hour);
+      if (!timeline.has(slot) || run.status === 'running') timeline.set(slot, run);
+    }
+    return { items, nextCursor: more ? items.at(-1).id : null, revision: history.stats.revision,
+      latest: this.publicRun(runs[0]), featured: this.publicRun(history.featured), timeline: Array.from(timeline.values(), run => this.publicRun(run)) };
+  }
+
+  status(now = Date.now(), includeHistory = true) {
     const { accounts, defaultAccountId, lastDispatchAt, error } = this.info;
-    const sorted = [...this.records.values()].sort((a,b) => Date.parse(b.startedAt) - Date.parse(a.startedAt));
+    const sorted = includeHistory ? [...this.records.values()].sort((a,b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)) : [];
     const runs = [], legacyRuns = [];
     for (const r of sorted) {
       const dest = r.accountId || r.experimentMode === 'independent' ? runs : legacyRuns;
-      const item = Object.fromEntries(publicFields.filter(k => k in r).map(k => [k, r[k]]));
-      if (Object.hasOwn(this.titleTranslations, r.title)) item.localizedTitles = this.titleTranslations[r.title];
-      dest.push(item);
+      dest.push(this.publicRun(r, true));
     }
     const rest = this.restSchedule;
     const today = this.classify(now);
@@ -358,6 +466,7 @@ export class Archive {
     for (let n=0; n<370 && !this.classify(previewDay).rest; n++) previewDay = localMinute(previewDay,1440);
     const hasPreview = this.classify(previewDay).rest;
     const ordered = accounts.map(a => ({ ...a, monitoringPaused: this.info.monitoringFromSlot?.[a.id] === null,
+      stats: this.history(a.id).stats, manualPending: this.history(a.id).runningManual || Boolean(this.info.manualChecks?.some(check => check.accountId === a.id)),
       restSampleMinutes: hasPreview && rest.enabled && a.enabled && a.present && this.info.monitoringFromSlot?.[a.id] !== null
         ? sampleMinutes(rest, this.quietHours, previewDay, a.id) : [],
       pendingSwitchChecks: (this.info.switchChecks || []).filter(check => check.accountId === a.id).length,
@@ -372,7 +481,8 @@ export class Archive {
       restSchedule: rest, calendar: this.info.calendar || defaultCalendar, calendarRegion: this.calendarRegion(), autoRegion: this.autoRegion(), regions, todayKey: dateKey(now), calendarDay: today, restPreviewDay: previewDay,
       quietHours: this.quietHours, quietUntil: window && now >= window.start ? window.end : null,
       lastDispatchAt: lastDispatchAt ?? null, nextDispatchAt: scheduled.length ? Math.min(...scheduled) : null,
-      monitorError: error || '', runs, legacyRuns, serverTime: new Date(now).toISOString(), pollSeconds: 5 };
+      monitorError: error || '', damagedRuns: [...this.damagedRuns.values()], historyStats: this.history('history').stats,
+      ...(includeHistory ? { runs, legacyRuns } : {}), serverTime: new Date(now).toISOString(), pollSeconds: 5 };
   }
 }
 

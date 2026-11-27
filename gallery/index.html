@@ -198,7 +198,7 @@
 <main><div id="language-feedback" role="status"></div>
 <section class="hero"><div><div class="eyebrow">CODEX</div><h1>鹈鹕巡检</h1><p>按计划用同一句提示词逐号生成鹈鹕骑行动画。选择账号，查看最近输出和运行记录。</p></div><div class="clock"><div class="eyebrow" data-zone>北京时间</div><div class="time" id="clock">--:--:--</div><div class="date" id="today">正在同步时间</div></div></section>
 <section class="accounts-panel" aria-labelledby="accounts-heading">
-<div class="account-heading"><h2 id="accounts-heading">Codex 官方账号</h2><span id="inventory"></span></div>
+<div class="account-heading"><h2 id="accounts-heading">Codex 官方账号</h2><span id="inventory"></span><button type="button" class="select" id="manual-check" hidden>立即巡检一次</button></div>
 <div class="accounts" id="accounts"></div><p class="monitor-feedback" id="monitor-feedback" role="status"></p>
 <details class="quiet-panel" open>
 <summary><strong>免打扰与休息日</strong><span class="quiet-zone" data-zone>北京时间</span><span id="quiet-summary">读取中</span></summary>
@@ -233,10 +233,15 @@
 <div class="settings-footer"><span class="footer-scope">应用于全部账号</span><p id="quiet-feedback" role="status"></p><button type="button" id="quiet-save">保存设置</button></div>
 </fieldset></div><div id="quiet-readonly" class="quiet-readonly" hidden></div><p id="sample-preview" class="sample-preview"></p></details></section>
 <div class="error-bar hidden" id="notice" role="status"></div>
-<section class="stats" aria-label="生成统计"><div class="stat"><div class="stat-label">已保存输出 <span class="tiny-icon">▧</span></div><div class="stat-value" id="total">—</div><div class="stat-foot">当前账号累计</div></div><div class="stat"><div class="stat-label">保存成功率 <span class="tiny-icon">↗</span></div><div class="stat-value" id="rate">—</div><div class="stat-foot" id="rate-note">以已结束的实际任务计算</div></div><div class="stat"><div class="stat-label">距离下次生成 <span class="tiny-icon">◷</span></div><div class="stat-value purple" id="countdown">--:--</div><div class="stat-foot" id="next-time">正在读取喜鹊调度</div></div><div class="stat"><div class="stat-label">最近一次生成 <span class="tiny-icon">✦</span></div><div class="stat-value" id="last-time">—</div><div class="stat-foot" id="last-note">等待第一段骑行</div></div></section>
+<section class="stats" aria-label="生成统计">
+<div class="stat"><div class="stat-label">模型请求成功率</div><div class="stat-value" id="model-rate">—</div><div class="stat-foot" id="model-count"></div></div>
+<div class="stat"><div class="stat-label">作品保存率</div><div class="stat-value" id="art-rate">—</div><div class="stat-foot" id="art-count"></div></div>
+<div class="stat"><div class="stat-label">主动中断次数</div><div class="stat-value" id="interrupt-count">—</div><div class="stat-foot" id="saved-count"></div></div>
+<div class="stat"><div class="stat-label">距离下次生成</div><div class="stat-value purple" id="countdown">--:--</div><div class="stat-foot" id="next-time">正在读取喜鹊调度</div></div>
+</section>
 <div class="workspace"><section class="panel panel-pad"><div class="panel-top"><div class="panel-title"><span class="mark"></span>生成状态</div><span class="hint" id="updated">每 5 秒刷新</span></div><div class="timeline-box"><div class="timeline-head"><span id="timeline-label">最近 24 小时</span><div class="tabs" aria-label="时间范围"><button class="active" type="button" data-hours="24">24 小时</button><button type="button" data-hours="168">7 天</button></div></div><div class="timeline" id="timeline" aria-label="按小时记录的生成状态"></div><div class="range-label"><span id="range-start">24 小时前</span><span>现在</span></div><div class="legend"><span><i class="ok"></i>已保存</span><span><i class="busy"></i>生成中</span><span><i class="bad"></i>失败 / 中断</span><span><i></i>未运行</span></div></div><div class="status-section"><div class="status-row"><span>当前状态</span><strong id="current-state">读取记录中</strong></div><div class="status-row"><span>运行节奏</span><strong id="schedule-state">读取中</strong></div><div class="status-row"><span>最近耗时</span><strong id="duration">—</strong></div><div class="status-row"><span>结果留存</span><strong>原始 HTML · SVG · 预览页</strong></div></div><hr class="divider"><div class="workflow" aria-label="当前任务阶段"><span class="step" data-step="0"><b>1</b>独立生成</span><span class="connector"></span><span class="step" data-step="1"><b>2</b>提取 SVG</span><span class="connector"></span><span class="step" data-step="2"><b>3</b>保存结果</span></div><p class="footnote"><span id="timeline-help"></span><br>定时检测需要此电脑保持唤醒，并运行喜鹊。</p></section>
 <section class="panel art-panel"><div class="panel-top art-header"><div class="panel-title">最近一次输出</div><span class="pill"><i class="dot"></i>SVG 动画</span></div><div class="art-body"><button class="art-button" id="featured" type="button" aria-label="放大最新独立输出"><div class="art-empty">等待此账号输出</div></button></div><div class="art-caption"><div><h3 id="featured-title">正在独立生成</h3><p id="featured-meta">固定提示词</p></div><button class="text-link" type="button" id="view-featured">查看输出 ↗</button></div></section></div>
-<section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><button id="load-more" class="load-more hidden" type="button">显示更多记录</button></section>
+<section class="archive"><div class="section-head"><h2>运行记录<span id="archive-count">独立运行</span></h2><div class="archive-tools"><span class="hint">按开始时间倒序</span><select class="select" id="filter" aria-label="筛选运行记录"><option value="all">全部记录</option><option value="success">已保存</option><option value="failed">失败 / 中断</option><option value="running">生成中</option></select></div></div><div class="gallery" id="gallery"></div><p id="history-feedback" role="status"></p><div class="archive-tools"><button id="page-prev" class="select" type="button" hidden>上一页</button><button id="page-next" class="select" type="button" hidden>下一页</button></div></section>
 <details class="prompt-details"><summary>检测使用的提示词</summary><p id="prompt" dir="auto"></p></details>
 <details class="user-guide" id="user-guide"><summary>使用说明</summary><article id="guide-content"></article></details>
 <footer><span class="brand-mini">鹈鹕巡检 · FIXED INPUT / INDEPENDENT RUNS</span><span id="footer-status">喜鹊 / 定时检测 / 按账号归档</span></footer>
@@ -259,7 +264,8 @@ const $=id=>document.getElementById(id), HOUR=3600000;
 const managementKey=document.querySelector('meta[name="monitor-control"]')?.content;
 let savingMonitoring=false, monitoringVersion=0;
 let quietEdited=false;
-let dataset=null, selected=location.hash.slice(1), state=null,range=24,limit=12,filter='all',fingerprint='',timerOffset=0,featureId=null,online=false,lastUpdated=0,slots=[];
+let dataset=null, selected=location.hash.slice(1), state=null,range=24,filter='all',fingerprint='',timerOffset=0,featureId=null,online=false,lastUpdated=0,slots=[];
+let page=null, pageKey='', pageGroup='', pageRequest=0, cursors=[null], detailRequest=0;
 const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const displayZone=()=>dataset?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 const zoneName=()=>displayZone()==='Asia/Shanghai'?t('北京时间'):displayZone();
@@ -277,7 +283,7 @@ const fmt=(t,options)=>new Intl.DateTimeFormat(locale,{timeZone:displayZone(),ho
 const hhmm=t=>fmt(t,{hour:'2-digit',minute:'2-digit'});
 const stamp=t=>fmt(t,{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 const label=s=>({success:t('已保存'),running:t('生成中'),failed:t('生成失败'),interrupted:t('运行中断')}[s]||t('未运行'));
-const triggerLabel=r=>({pause:t('关闭时检测'),resume:t('开启时检测'),scheduled:t('定时检测'),'rest-sample':t('休息日抽样'),'manual-retry':t('手动重试')}[r?.trigger]||'');
+const triggerLabel=r=>({pause:t('关闭时检测'),resume:t('开启时检测'),manual:t('手动巡检'),scheduled:t('定时检测'),'rest-sample':t('休息日抽样'),'manual-retry':t('手动重试')}[r?.trigger]||'');
 const duration=r=>{if(!r?.finishedAt)return '—';const sec=Math.max(0,Math.round((Date.parse(r.finishedAt)-Date.parse(r.startedAt))/1000));return sec<60?t('{n} 秒',{n:sec}):t('{n} 分 {s} 秒',{n:Math.floor(sec/60),s:sec%60})};
 function currentTime(){return Date.now()+timerOffset}
 function renderClock(){
@@ -398,34 +404,77 @@ for(const id of ['featured','gallery','tooltip']) previewChanges.observe($(id),{
 function syncVisiblePreviews(){visiblePreviews.forEach(syncPreview);}
 document.addEventListener('visibilitychange',syncVisiblePreviews);
 new MutationObserver(syncVisiblePreviews).observe($('modal'),{attributes:true,attributeFilter:['open']});
-function renderGallery(){let items=filter==='legacy'?(state.legacyRuns||[]):state.runs.filter(r=>filter==='all'||(filter==='failed'?['failed','interrupted'].includes(r.status):r.status===filter));$('archive-count').textContent=t('{n} 条记录',{n:items.length});$('gallery').innerHTML=items.slice(0,limit).map(r=>'<button type="button" class="card" data-run="'+r.id+'"><div class="card-cover">'+(r.svg?thumbnail(r):'<span class="hint">'+escapeHTML(systemMessage(r.stage)||label(r.status))+'</span>')+'</div><div class="card-info"><div class="card-time"><span>'+stamp(r.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(r.status)?'fail':'')+'">'+label(r.status)+'</span></div><h3>'+escapeHTML(displayTitle(r))+'</h3><p class="run-model">'+escapeHTML([state.account?.name,triggerLabel(r),r.model,r.reasoningEffort].filter(Boolean).join(' · '))+'</p></div></button>').join('');if(items.length<3&&filter==='all'&&state.account?.enabled&&!state.account.monitoringPaused)$('gallery').insertAdjacentHTML('beforeend','<div class="await-card"><div class="await-icon">＋</div><strong>'+t('等待下一次独立运行')+'</strong><small>'+t('按此账号的计划检测')+'</small></div>');if(!items.length&&filter!=='all')$('gallery').innerHTML='<div class="await-card"><strong>'+t('这个分类还没有记录')+'</strong><small>'+t('新结果会自动显示在这里')+'</small></div>';$('load-more').classList.toggle('hidden',items.length<=limit)}
-function renderState(){const runs=state.runs,good=runs.filter(r=>r.status==='success'),finished=runs.filter(r=>['success','failed','interrupted'].includes(r.status)),latest=runs[0],running=runs.find(r=>r.status==='running');$('total').innerHTML=String(good.length).padStart(2,'0')+'<small>'+t('份')+'</small>';$('rate').innerHTML=finished.length?(100*good.length/finished.length).toFixed(good.length===finished.length?0:1)+'<small>%</small>':'—';$('rate-note').textContent=finished.length?t('已结束 {total} 次 · 保存 {saved} 次',{total:finished.length,saved:good.length}):t('以已结束的实际任务计算');$('last-time').textContent=latest?hhmm(latest.startedAt):'—';$('last-note').textContent=latest?label(latest.status)+' · '+fmt(latest.startedAt,{month:'2-digit',day:'2-digit'}):t('等待第一段骑行');$('duration').textContent=duration(latest);$('current-state').textContent=running?[triggerLabel(running),systemMessage(running.stage)].filter(Boolean).join(' · '):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?t('免打扰中'):state.account?.pendingSwitchChecks?t('开关检测待运行'):state.account?.monitoringPaused?t('检测已暂停'):(latest?.status==='success'?t('本次已保存，等待下次生成'):latest?label(latest.status):t('等待此账号输出'));$('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';$('schedule-state').textContent=selected==='history'?t('历史归档'):!state.account?.enabled?t('供应商账号未启用'):state.account.monitoringPaused?t('检测已暂停'):state.scheduleStatus==='active'?(state.restSchedule?.enabled?t(state.calendarDay.label)+' · '+(state.calendarDay.rest?t('每账号 {n} 次',{n:state.restSchedule.count}):t('约每小时一次')):t('喜鹊插件 · 每小时随机分钟')):t('喜鹊插件离线');renderPrompt();document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('done',latest?.status==='success');el.classList.toggle('active',Boolean(running)&&(i===(running.stage.includes('提取')?1:0)));});const featured=good[0];if(featured&&featured.id!==featureId){featureId=featured.id;$('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">'+t('⤢ 点击放大')+'</span>';$('featured-title').textContent=displayTitle(featured);$('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||t('历史输出'))+' · '+(featured.reasoningEffort||'—')}else if(!featured){featureId=null;$('featured').innerHTML='<div class="art-empty">'+t('等待此账号输出')+'</div>';$('featured-title').textContent=running?t('正在独立生成'):t('等待输出');$('featured-meta').textContent=state.model||t('固定提示词')}renderTimeline();renderGallery();renderClock();}
+function renderGallery(){
+    const stats=state.stats, items=page?.items || [];
+    const count={all:stats.total,success:stats.saved,failed:stats.failed+stats.interrupted,running:stats.running}[filter];
+    $('archive-count').textContent=t('{n} 条记录',{n:count});
+    $('gallery').innerHTML=items.map(run=>{
+        const cover=run.svg?thumbnail(run):'<span class="hint">'+escapeHTML(systemMessage(run.stage)||label(run.status))+'</span>';
+        const meta=[state.account?.name,triggerLabel(run),run.model,run.reasoningEffort].filter(Boolean).join(' · ');
+        return '<button type="button" class="card" data-run="'+escapeHTML(run.id)+'"><div class="card-cover">'+cover+'</div><div class="card-info"><div class="card-time"><span>'+stamp(run.startedAt)+'</span><span class="badge '+(['failed','interrupted'].includes(run.status)?'fail':'')+'">'+label(run.status)+'</span></div><h3>'+escapeHTML(displayTitle(run))+'</h3><p class="run-model">'+escapeHTML(meta)+'</p></div></button>';
+    }).join('');
+    if(page && !items.length)$('gallery').innerHTML='<div class="await-card"><strong>'+t('这个分类还没有记录')+'</strong></div>';
+    $('page-prev').hidden=cursors.length===1;
+    $('page-next').hidden=!page?.nextCursor;
+}
+function renderState(){
+    const stats=state.stats, latest=page?.latest, running=latest?.status==='running'?latest:null;
+    for(const [prefix,success,total] of [['model',stats.modelSuccess,stats.modelTotal],['art',stats.artworkSuccess,stats.artworkTotal]]){
+        $(prefix+'-rate').textContent=total?new Intl.NumberFormat(locale,{style:'percent',maximumFractionDigits:1}).format(success/total):'—';
+        $(prefix+'-count').textContent=t('{success} / {total} 次',{success,total});
+    }
+    $('interrupt-count').textContent=stats.activeInterruptions;
+    $('saved-count').textContent=t('累计保存 {n} 份',{n:stats.saved});
+    $('duration').textContent=latest?stamp(latest.startedAt)+' · '+duration(latest):'—';
+    $('current-state').textContent=running?[triggerLabel(running),systemMessage(running.stage)].filter(Boolean).join(' · '):state.account?.manualPending?t('手动巡检已排队'):state.quietUntil && state.account?.enabled && !state.account.monitoringPaused?t('免打扰中'):state.account?.pendingSwitchChecks?t('开关检测待运行'):state.account?.monitoringPaused?t('检测已暂停'):latest?label(latest.status):t('等待此账号输出');
+    $('current-state').className=running?'warn':latest?.status==='success'?'good':'warn';
+    $('schedule-state').textContent=selected==='history'?t('历史归档'):!state.account?.enabled?t('供应商账号未启用'):state.account.monitoringPaused?t('检测已暂停'):state.restSchedule?.enabled?t(state.calendarDay.label)+' · '+(state.calendarDay.rest?t('每账号 {n} 次',{n:state.restSchedule.count}):t('约每小时一次')):t('喜鹊插件 · 每小时随机分钟');
+    renderPrompt();
+    document.querySelectorAll('.step').forEach((el,index)=>{
+        el.classList.toggle('done',latest?.status==='success');
+        el.classList.toggle('active',Boolean(running)&&index===(running.stage.includes('提取')?1:0));
+    });
+    const featured=page?.featured;
+    if(featured && featured.id!==featureId){
+        featureId=featured.id;
+        $('featured').innerHTML=thumbnail(featured)+'<span class="enlarge">'+t('⤢ 点击放大')+'</span>';
+        $('featured-title').textContent=displayTitle(featured);
+        $('featured-meta').textContent=stamp(featured.startedAt)+' / '+Math.round(featured.bytes/1024)+' KB / '+(featured.model||t('历史输出'))+' · '+(featured.reasoningEffort||'—');
+    }else if(!featured){
+        featureId=null;
+        $('featured').innerHTML='<div class="art-empty">'+t('等待此账号输出')+'</div>';
+        $('featured-title').textContent=running?t('正在独立生成'):t('等待输出');
+        $('featured-meta').textContent=state.model||t('固定提示词');
+    }
+    renderTimeline();renderGallery();renderClock();
+}
 function renderNotice(){
     let note='';
     if(!online) note=t('暂时连不上监测网页，正在重连。');
     else if(state.monitorError) note=t('插件调度异常 · {error}',{error:systemMessage(state.monitorError)});
     else if(state.scheduleStatus==='offline') note=t('未收到喜鹊插件心跳。请检查喜鹊及「鹈鹕巡检」插件的运行状态。');
+    if(state.damagedRuns?.length) note=[note,t('已跳过损坏的归档')+' · '+state.damagedRuns.join(' · ')].filter(Boolean).join(' / ');
     $('notice').textContent=note;
     $('notice').classList.toggle('hidden',!note);
 }
 function selectAccount(){
-    const accounts=dataset.accounts, older=[...dataset.legacyRuns,...dataset.runs.filter(r=>!r.accountId)];
-    if(!accounts.some(a=>a.id===selected) && !(selected==='history' && older.length)){
+    const accounts=dataset.accounts, older=dataset.historyStats;
+    if(!accounts.some(a=>a.id===selected) && !(selected==='history' && older.total)){
         selected=accounts.find(a=>a.id===dataset.defaultAccountId)?.id || accounts[0]?.id || 'history';
     }
     const account=accounts.find(a=>a.id===selected);
     const plan=account?.restSampleMinutes;
     $('sample-preview').textContent=plan?.length?account.name+' · '+fmt(dataset.restPreviewDay,{month:'numeric',day:'numeric',weekday:'short'})+' · '+t('抽样计划')+' · '+plan.map(timeInput).join(' / '):'';
     if(state?.account?.monitoringPaused!==account?.monitoringPaused)$('monitor-feedback').textContent='';
-    state={...dataset,account,runs:selected==='history'?older.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)):dataset.runs.filter(r=>r.accountId===selected),legacyRuns:[]};
+    if(pageGroup!==selected){pageGroup=selected;resetPage();}
+    state={...dataset,account,stats:account?.stats||older,runs:page?.timeline || []};
     $('inventory').textContent=t('{n} 个账号参与检测',{n:accounts.filter(a=>a.enabled && a.present && !a.monitoringPaused).length});
     const active=document.activeElement;
     const cards=accounts.map(a=>{
-        const runs=dataset.runs.filter(r=>r.accountId===a.id);
-        const status=!a.present?t('已移除'):!a.enabled?t('已停用'):dataset.quietUntil && !a.monitoringPaused?t('免打扰中'):a.pendingSwitchChecks?t('开关检测待运行'):a.monitoringPaused?t('检测已暂停'):runs.length?label(runs[0].status):t('待首次检测');
-        return accountCard(a.id,a.name,status+' · '+t('{n} 份',{n:runs.filter(r=>r.status==='success').length}),a);
+        const status=!a.present?t('已移除'):!a.enabled?t('已停用'):a.manualPending?t('手动巡检已排队'):dataset.quietUntil && !a.monitoringPaused?t('免打扰中'):a.pendingSwitchChecks?t('开关检测待运行'):a.monitoringPaused?t('检测已暂停'):a.stats.latestStatus?label(a.stats.latestStatus):t('待首次检测');
+        return accountCard(a.id,a.name,status+' · '+t('{n} 份',{n:a.stats.saved}),a);
     });
-    if(older.length)cards.push(accountCard('history',t('早期记录'),t('{n} 次 · 未归属',{n:older.length})));
+    if(older.total)cards.push(accountCard('history',t('早期记录'),t('{n} 次 · 未归属',{n:older.total})));
     $('accounts').innerHTML=cards.join('');
     syncMonitoringSwitches();
     const focusedId=active?.dataset.monitor || active?.dataset.account;
@@ -433,7 +482,7 @@ function selectAccount(){
         const attribute=active.dataset.monitor?'data-monitor':'data-account';
         $('accounts').querySelector('['+attribute+'="'+CSS.escape(focusedId)+'"]')?.focus({preventScroll:true});
     }
-    renderState();renderNotice();
+    renderState();renderNotice();loadPage();
 }
 function accountCard(id,name,detail,account){
     const selectedCard=id===selected;
@@ -446,6 +495,11 @@ function accountCard(id,name,detail,account){
     return '<div class="account'+(selectedCard?' selected':'')+(id==='history'?' history':'')+'">'+selection+control+'</div>';
 }
 function syncMonitoringSwitches(){
+    const manual=$('manual-check'), account=state?.account;
+    manual.hidden=!(managementKey && account?.present && account.enabled);
+    manual.disabled=savingMonitoring || !online || Boolean(account?.manualPending);
+    manual.textContent=t(account?.manualPending?'手动巡检已排队':'立即巡检一次');
+    manual.setAttribute('aria-label',manual.textContent+(account?' · '+account.name:''));
     $('quiet-fields').disabled=savingMonitoring || !online;
     for(const button of $('accounts').querySelectorAll('[data-monitor]')){
         button.setAttribute('aria-disabled',String(savingMonitoring || !online));
@@ -707,7 +761,7 @@ $('quiet-save').addEventListener('click',async()=>{
     }
     savingMonitoring=true;syncMonitoringSwitches();
     try{
-        const response=await fetch('./api/quiet-hours',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
+        const response=await fetch('./api/quiet-hours?summary=1',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
             body:new URLSearchParams({key:managementKey,enabled:String($('quiet-enabled').checked),start,end,restSchedule:JSON.stringify(rest),calendar:JSON.stringify({region:regionSelect.value,overrides:dateOverrides}),calendarBase})});
         if(!response.ok)throw Error(response.status===403?t('请刷新页面后重试。'):response.status===409?t('日历已在其他窗口更改，请刷新后重试。'):t('请核对时间后重试。'));
         const updated=await response.json();
@@ -722,7 +776,7 @@ async function toggleMonitoring(id){
     savingMonitoring=true;syncMonitoringSwitches();
     $('monitor-feedback').textContent='';
     try{
-        const response=await fetch('./api/accounts/'+encodeURIComponent(account.id)+'/monitoring',{
+        const response=await fetch('./api/accounts/'+encodeURIComponent(account.id)+'/monitoring?summary=1',{
             method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
             body:new URLSearchParams({key:managementKey,paused:String(!account.monitoringPaused)})
         });
@@ -736,6 +790,23 @@ async function toggleMonitoring(id){
         $('monitor-feedback').textContent=t('未能确认 {name} 的检测设置。{error}',{name:account.name,error:error.message});
     }finally{savingMonitoring=false;syncMonitoringSwitches();}
 }
+const manualRequests=new Map();
+$('manual-check').addEventListener('click',async()=>{
+    const account=state?.account;
+    if($('manual-check').disabled || !account?.present || !account.enabled || !managementKey)return;
+    if(!manualRequests.has(account.id))manualRequests.set(account.id,Array.from(crypto.getRandomValues(new Uint8Array(16)),byte=>byte.toString(16).padStart(2,'0')).join(''));
+    savingMonitoring=true;syncMonitoringSwitches();
+    try{
+        const response=await fetch('./api/accounts/'+encodeURIComponent(account.id)+'/check',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(10000),
+            body:new URLSearchParams({key:managementKey,requestId:manualRequests.get(account.id)})});
+        if(!response.ok)throw Error(String(response.status));
+        const data=await response.json();
+        manualRequests.delete(account.id);
+        monitoringVersion++;receive(data);
+        $('monitor-feedback').textContent=account.name+' · '+t(data.quietUntil?'免打扰结束后巡检':'已提交一次巡检');
+    }catch(error){$('monitor-feedback').textContent=t('未能确认 {name} 的检测设置。{error}',{name:account.name,error:error.message});}
+    finally{savingMonitoring=false;syncMonitoringSwitches();}
+});
 $('accounts').addEventListener('click', e=>{
     const control=e.target.closest('[data-monitor]');
     if(control){toggleMonitoring(control.dataset.monitor);return;}
@@ -744,9 +815,53 @@ $('accounts').addEventListener('click', e=>{
 });
 window.addEventListener('hashchange',()=>{
     $('monitor-feedback').textContent='';
-    selected=location.hash.slice(1);limit=12;filter='all';$('filter').value=filter;
+    selected=location.hash.slice(1);filter='all';$('filter').value=filter;
+    detailRequest++;
+    if($('modal').open)$('modal').close();
     if(dataset){hideTip();selectAccount();}
 });
+function resetPage(){
+    cursors=[null];page=null;pageKey='';pageRequest++;
+    $('history-feedback').textContent='';
+}
+function apiPath(path,params={}){
+    const query=new URLSearchParams(params);
+    if(snapshot)query.set('view',snapshot.dataset.view);
+    return './api/'+path+'?'+query;
+}
+function normalizeRun(run){
+    if(!run)return run;
+    for(const key of ['svg','original','preview','thumbnail','thumbnailVideo','responseText']){
+        if(run[key]){
+            run[key]=run[key].replace(/^\//,'./');
+            if(run.sourceHtmlSha256 && ['svg','thumbnail','thumbnailVideo'].includes(key))run[key]+='?v='+encodeURIComponent(run.sourceHtmlSha256);
+        }
+    }
+    return run;
+}
+async function loadPage(){
+    if(!state)return;
+    const cursor=cursors.at(-1), key=JSON.stringify([selected,filter,cursor,state.stats.revision,Math.floor(currentTime()/HOUR)]);
+    if(key===pageKey)return;
+    pageKey=key;
+    const request=++pageRequest;
+    const params={account:selected,filter};
+    if(cursor)params.cursor=cursor;
+    try{
+        const response=await fetch(apiPath('runs',params),{credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(8000)});
+        if(!response.ok)throw Error(String(response.status));
+        const result=await response.json();
+        if(request!==pageRequest)return;
+        result.items.forEach(normalizeRun);result.timeline.forEach(normalizeRun);
+        normalizeRun(result.latest);normalizeRun(result.featured);
+        page=result;state.runs=page.timeline;
+        $('history-feedback').textContent='';
+        renderState();
+    }catch(error){
+        if(request!==pageRequest)return;
+        pageKey='';$('history-feedback').textContent=t('读取失败')+' · '+error.message;
+    }
+}
 function receive(data){
     const oldRegion=dataset?.autoRegion;
     const oldZone=dataset?.timezone;
@@ -761,30 +876,21 @@ function receive(data){
     }
     if(oldZone!==data.timezone)renderZone();
     renderQuietSettings(data);
-    for(const r of [...data.runs,...data.legacyRuns]){
-        for(const k of ['svg','original','preview','thumbnail','thumbnailVideo','responseText']){
-            if(r[k]){
-                r[k]=r[k].replace(/^\//,'./');
-                if(r.sourceHtmlSha256 && ['svg','thumbnail','thumbnailVideo'].includes(k)) r[k]+='?v='+encodeURIComponent(r.sourceHtmlSha256);
-            }
-        }
-    }
     timerOffset=Date.parse(data.serverTime)-Date.now();
     lastUpdated=Date.now();online=true;
     $('connection').innerHTML='<i class="dot pulse"></i>'+t('本地服务在线')+'';
-    const key=JSON.stringify([data.prompt,data.accounts,data.runs,data.legacyRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay,data.calendar,data.autoRegion,data.timezone]);
+    const key=JSON.stringify([data.prompt,data.accounts,data.historyStats,data.damagedRuns,data.scheduleStatus,data.monitorError,data.nextDispatchAt,data.quietUntil,data.quietHours,data.restSchedule,data.calendarDay,data.restPreviewDay,data.calendar,data.autoRegion,data.timezone]);
     if(key!==fingerprint){fingerprint=key;hideTip();selectAccount();}
-    renderNotice();renderClock();
+    loadPage();renderNotice();renderClock();
     if(initialSource){
-        const r=state.runs.find(run=>run.id===initialSource);
+        openRun(initialSource,true);
         initialSource=null;
-        if(r?.responseText){openRun(r.id);showResponse(r);}
     }
 }
 async function refresh(){
     const version=monitoringVersion;
     try{
-        const path='./api/status'+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):'');
+        const path=apiPath('status',{summary:'1'});
         const response=await fetch(path,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(4500)});
         if(snapshot && response.status===403){ location.reload();return; }
         if(!response.ok) throw new Error(t('读取失败'));
@@ -798,8 +904,8 @@ function showTip(button){const slot=slots[Number(button.dataset.slot)];if(!slot)
 function hideTip(){$('tooltip').classList.add('hidden');$('tooltip').replaceChildren()}
 let initialSource=new URLSearchParams(location.search).get('source');
 let detailRunId=null;
-function backToDetails(){
-    openRun(detailRunId);
+async function backToDetails(){
+    await openRun(detailRunId);
     $('show-response')?.focus();
 }
 async function showResponse(r){
@@ -834,9 +940,19 @@ async function showResponse(r){
 $('modal').addEventListener('cancel',event=>{
     if($('back-to-detail')){event.preventDefault();backToDetails();}
 });
-function openRun(id){
-    const r=state?.runs.find(x=>x.id===id);
-    if(!r)return;
+async function openRun(id,raw=false){
+    if(!id)return;
+    const request=++detailRequest;
+    let r;
+    try{
+        const response=await fetch(apiPath('runs/'+encodeURIComponent(id)),{credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(8000)});
+        if(!response.ok)throw Error(String(response.status));
+        r=normalizeRun(await response.json());
+        if(request!==detailRequest)return;
+    }catch(error){
+        if(request===detailRequest)$('history-feedback').textContent=t('读取失败')+' · '+error.message;
+        return;
+    }
     detailRunId=r.id;
     hideTip();
     const title=displayTitle(r);
@@ -862,9 +978,19 @@ function openRun(id){
     $('modal-links').innerHTML=links.join('');
     if(r.responseText)$('show-response').onclick=()=>showResponse(r);
     if(!$('modal').open)$('modal').showModal();
+    if(raw && r.responseText)showResponse(r);
 }
 $('timeline').addEventListener('pointerover',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('pointerleave',hideTip);$('timeline').addEventListener('focusin',e=>{const el=e.target.closest('[data-slot]');if(el)showTip(el)});$('timeline').addEventListener('focusout',hideTip);$('timeline').addEventListener('click',e=>{const el=e.target.closest('[data-slot]');const r=el&&slots[Number(el.dataset.slot)]?.run;if(r)openRun(r.id)});window.addEventListener('scroll',hideTip,{passive:true});window.addEventListener('resize',hideTip);
-document.querySelectorAll('[data-hours]').forEach(b=>b.addEventListener('click',()=>{range=Number(b.dataset.hours);document.querySelectorAll('[data-hours]').forEach(x=>x.classList.toggle('active',x===b));hideTip();renderTimeline()}));$('gallery').addEventListener('click',e=>{const el=e.target.closest('[data-run]');if(el)openRun(el.dataset.run)});$('featured').addEventListener('click',()=>openRun(featureId));$('view-featured').addEventListener('click',()=>openRun(featureId));$('filter').addEventListener('change',e=>{filter=e.target.value;limit=12;if(state)renderGallery()});$('load-more').addEventListener('click',()=>{limit+=12;renderGallery()});$('close-modal').addEventListener('click',()=>$('modal').close());$('modal').addEventListener('click',e=>{if(e.target===$('modal')){const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('modal').close()}});$('modal').addEventListener('close',()=>{$('modal-art').innerHTML=''});document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderClock()});setInterval(renderClock,1000);renderClock();
+document.querySelectorAll('[data-hours]').forEach(b=>b.addEventListener('click',()=>{range=Number(b.dataset.hours);document.querySelectorAll('[data-hours]').forEach(x=>x.classList.toggle('active',x===b));hideTip();renderTimeline()}));
+$('gallery').addEventListener('click',e=>{const el=e.target.closest('[data-run]');if(el)openRun(el.dataset.run)});
+$('featured').addEventListener('click',()=>openRun(featureId));$('view-featured').addEventListener('click',()=>openRun(featureId));
+$('filter').addEventListener('change',e=>{filter=e.target.value;resetPage();if(state){renderGallery();loadPage();}});
+$('page-next').addEventListener('click',()=>{if(page?.nextCursor){cursors.push(page.nextCursor);page=null;renderGallery();loadPage();}});
+$('page-prev').addEventListener('click',()=>{if(cursors.length>1){cursors.pop();page=null;renderGallery();loadPage();}});
+$('close-modal').addEventListener('click',()=>$('modal').close());
+$('modal').addEventListener('click',e=>{if(e.target===$('modal')){const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('modal').close()}});
+$('modal').addEventListener('close',()=>{detailRequest++;$('modal-art').innerHTML=''});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderClock()});setInterval(renderClock,1000);renderClock();
 /*calendar-script*/
 function applyLanguage(){
     locale=preference==='system'?systemLanguage():preference;
@@ -883,8 +1009,7 @@ function applyLanguage(){
         $('monitor-feedback').textContent='';
         if($('modal').open){
             const raw=Boolean($('back-to-detail'));
-            openRun(detailRunId);
-            if(raw){const run=state.runs.find(r=>r.id===detailRunId);if(run)showResponse(run);}
+            openRun(detailRunId,raw);
         }
     }
     renderClock();
@@ -910,7 +1035,7 @@ async function changeLanguage(){
             const res=await fetch('./api/language',{method:'POST',credentials:'omit',signal:AbortSignal.timeout(8000),
                 body:new URLSearchParams({key:managementKey,language:preference,locale:calendarLanguage()})});
             if(!res.ok)throw Error(String(res.status));
-            const response=await fetch('./api/status'+(snapshot?'?view='+encodeURIComponent(snapshot.dataset.view):''),{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
+            const response=await fetch(apiPath('status',{summary:'1'}),{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
             if(response.ok)receive(await response.json());
         }
         if(!preferenceMeta)localStorage.setItem(preferenceKey,preference);
